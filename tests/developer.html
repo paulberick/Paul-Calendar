@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Paul Calendar Developer Console</title>
+
+<style>
+
+body{
+
+    margin:40px;
+    background:#111827;
+    color:white;
+    font-family:Arial,Helvetica,sans-serif;
+
+}
+
+.card{
+
+    width:500px;
+
+    background:#1F2937;
+
+    border-radius:20px;
+
+    padding:30px;
+
+}
+
+h1{
+
+    margin-top:0;
+
+}
+
+hr{
+
+    margin:20px 0;
+
+}
+
+label{
+
+    font-size:18px;
+
+}
+
+input{
+
+    font-size:16px;
+
+    margin-left:10px;
+
+}
+
+.section{
+
+    margin-top:20px;
+
+}
+
+.label{
+
+    color:#D1D5DB;
+
+    font-size:15px;
+
+}
+
+.value{
+
+    color:#34D399;
+
+    font-size:36px;
+
+    font-weight:bold;
+
+    margin-bottom:15px;
+
+}
+
+.small{
+
+    color:#9CA3AF;
+
+    font-size:13px;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>Paul Calendar Engine</h1>
+
+<label>
+
+Date
+
+<input
+    id="datePicker"
+    type="date"
+    value="2026-06-29">
+
+</label>
+
+<div id="output"></div>
+
+</div>
+
+
+<script type="module">
+
+import {
+
+    parseDate,
+    prettyDate
+
+}
+from "../engine/dateUtils.js";
+
+
+import {
+
+    getPaulDate
+
+}
+from "../engine/calendarEngine.js";
+
+
+const picker =
+
+    document.getElementById("datePicker");
+
+
+const output =
+
+    document.getElementById("output");
+
+
+
+function refresh(){
+
+    //------------------------------------------------------
+    // Parse selected date
+    //------------------------------------------------------
+
+    const testDate =
+
+        parseDate(
+
+            picker.value
+
+        );
+
+
+    //------------------------------------------------------
+    // Ask engine
+    //------------------------------------------------------
+
+    const paul =
+
+        getPaulDate(
+
+            testDate
+
+        );
+
+
+    //------------------------------------------------------
+    // Developer output
+    //------------------------------------------------------
+
+    output.innerHTML =
+
+`
+<div class="section">
+
+<div class="label">
+
+Gregorian
+
+</div>
+
+<div class="value">
+
+${prettyDate(testDate)}
+
+</div>
+
+</div>
+
+<hr>
+
+<div class="section">
+
+<div class="label">
+
+Solar Year
+
+</div>
+
+<div class="value">
+
+${paul.solar.solarYear}
+
+</div>
+
+</div>
+
+<div class="section">
+
+<div class="label">
+
+Solar Day
+
+</div>
+
+<div class="value">
+
+${paul.solar.solarDay}
+
+</div>
+
+</div>
+
+<div class="section">
+
+<div class="label">
+
+Weekday
+
+</div>
+
+<div class="value">
+
+${paul.solar.weekday}
+
+</div>
+
+</div>
+
+<div class="section">
+
+<div class="label">
+
+Festday
+
+</div>
+
+<div class="value">
+
+${paul.solar.festDay ? "YES" : "NO"}
+
+</div>
+
+</div>
+
+<div class="section">
+
+<div class="label">
+
+Moon
+
+</div>
+
+<div class="value">
+
+${paul.moon.name ?? "-"}
+
+</div>
+
+</div>
+
+<div class="section">
+
+<div class="label">
+
+Moon Night
+
+</div>
+
+<div class="value">
+
+${paul.moon.night ?? "-"}
+
+</div>
+
+</div>
+
+<div class="small">
+
+Paul Calendar Engine v0.2
+
+</div>
+
+`;
+
+}
+
+
+picker.addEventListener(
+
+    "input",
+
+    refresh
+
+);
+
+
+refresh();
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>Paul's Calendar</title>
+
+<link rel="manifest"
+      href="manifest.json">
+
+<link rel="stylesheet"
+      href="styles.css">
+
+<link rel="preconnect"
+      href="https://fonts.googleapis.com">
+
+<link rel="preconnect"
+      href="https://fonts.gstatic.com"
+      crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet">
+
+</head>
+
+<body>
+
+<div id="app">
+
+<header class="topHeader">
+
+<h1>
+
+Paul's Calendar
+
+</h1>
+
+<div id="gregorianDate"
+     class="gregorianDate">
+
+Loading...
+
+</div>
+
+</header>
+
+
+<main class="dashboard">
+
+<!-- ======================================= -->
+<!-- SOLAR PANEL -->
+<!-- ======================================= -->
+
+<section class="card solarCard">
+
+<div class="coordinateLabel">
+
+YEAR
+
+</div>
+
+<div id="solarYear"
+     class="coordinateValue">
+
+2026
+
+</div>
+
+<div class="coordinateLabel">
+
+DAY
+
+</div>
+
+<div id="solarDay"
+     class="coordinateValue">
+
+103
+
+</div>
+
+<div class="coordinateLabel">
+
+MOON
+
+</div>
+
+<div id="solarMoonNumber"
+     class="coordinateMoon">
+
+Four
+
+</div>
+
+<hr>
+
+<div id="weekday"
+     class="weekdayTitle">
+
+Dreamday,
+
+</div>
+
+<div id="quatrainDay"
+     class="quatrainDay">
+
+The Nineteenth Day<br>
+
+of Quatrain Four
+
+</div>
+
+</section>
+
+
+<!-- ======================================= -->
+<!-- MOON PANEL -->
+<!-- ======================================= -->
+
+<section class="card moonCard">
+
+<div id="moonIcon"
+     class="moonIcon">
+
+🌕
+
+</div>
+
+<div id="moonName"
+     class="moonName">
+
+Water Moon
+
+</div>
+
+<hr>
+
+<div id="moonPhrase"
+     class="moonPhrase">
+
+Night Two
+
+</div>
+
+</section>
+
+
+<!-- ======================================= -->
+<!-- ASTRONOMY PANEL -->
+<!-- ======================================= -->
+
+<section class="card astronomyCard">
+
+<h2>
+
+Astronomy
+
+</h2>
+
+<div class="event">
+
+<div>
+
+<div class="eventTitle">
+
+Next Lunar Event
+
+</div>
+
+<div id="nextFullMoon">
+
+Loading...
+
+</div>
+
+<div id="nextFullMoonCountdown"
+     class="countdown">
+
+(In -- Days)
+
+</div>
+
+</div>
+
+</div>
+
+<div class="event">
+
+<div>
+
+<div class="eventTitle">
+
+Next Solar Event
+
+</div>
+
+<div id="nextEquinox">
+
+Loading...
+
+</div>
+
+<div id="nextEquinoxCountdown"
+     class="countdown">
+
+(In -- Days)
+
+</div>
+
+</div>
+
+</div>
+
+<div class="event">
+
+<div>
+
+<div class="eventTitle">
+
+Next Paulmanac Event
+
+</div>
+
+<div id="nextMeteor">
+
+Loading...
+
+</div>
+
+<div id="nextMeteorCountdown"
+     class="countdown">
+
+(In -- Days)
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ======================================= -->
+<!-- NAVIGATION -->
+<!-- ======================================= -->
+
+<section class="card navigationCard">
+
+<div class="navigationButtons">
+
+<button id="previousDay">
+
+◀ Previous
+
+</button>
+
+<button id="todayButton">
+
+Today
+
+</button>
+
+<button id="nextDay">
+
+Next ▶
+
+</button>
+
+</div>
+
+</section>
+
+<!-- ======================================= -->
+<!-- OPEN BOOK -->
+<!-- ======================================= -->
+
+<section class="card bookCard">
+
+<button id="aboutButton"
+        class="bookButton">
+
+📖
+
+<span class="bookTitle">
+
+Open the Book
+
+</span>
+
+<span class="bookSubtitle">
+
+Persephone • Astronomy • Philosophy
+
+</span>
+
+</button>
+
+</section>
+
+</main>
+
+</div>
+
+<!-- ======================================= -->
+<!-- ABOUT BOOK MODAL -->
+<!-- ======================================= -->
+
+<div id="aboutModal"
+     class="aboutModal hidden">
+
+<div class="aboutContent">
+
+<button id="closeAbout"
+        class="closeBook">
+
+← Return to Calendar
+
+</button>
+
+<div id="aboutPages"
+     class="aboutPages">
+
+</div>
+
+<div class="aboutNavigation">
+
+<button id="previousPage"
+        class="pageArrow">
+
+◀
+
+</button>
+
+<div id="pageIndicator">
+
+Page 1 of 8
+
+</div>
+
+<button id="nextPage"
+        class="pageArrow">
+
+▶
+
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script type="module"
+        src="app.js">
+
+</script>
+
+<!-- ======================================= -->
+<!-- FUTURE MODALS -->
+<!-- ======================================= -->
+
+<div id="eventModal"
+     class="hidden">
+
+</div>
+
+<div id="astronomyModal"
+     class="hidden">
+
+</div>
+
+<div id="settingsModal"
+     class="hidden">
+
+</div>
+
+</body>
+
+</html>
