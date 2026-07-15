@@ -1,0 +1,27 @@
+[
+    {
+        "date":"2026-08-12",
+        "icon":"☄",
+        "title":"Perseids"
+    },
+    {
+        "date":"2026-09-07",
+        "icon":"🌑",
+        "title":"Total Lunar Eclipse"
+    },
+    {
+        "date":"2026-09-21",
+        "icon":"🌞",
+        "title":"Annular Solar Eclipse"
+    },
+    {
+        "date":"2026-11-02",
+        "icon":"🪐",
+        "title":"Venus • Jupiter"
+    },
+    {
+        "date":"2026-12-14",
+        "icon":"☄",
+        "title":"Geminids"
+    }
+]
