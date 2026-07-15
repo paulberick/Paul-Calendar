@@ -175,18 +175,14 @@ console.log("PAUL OBJECT:", paul);
             paul.moon.night
         ]}`;
 
-   /*------------------------------------------
+/*------------------------------------------
 Paulmanac
 ------------------------------------------*/
 
 let html = "";
 
-console.log(paul.upcoming);
+for (const event of paul.paulmanac) {
 
-
-console.log("Upcoming:", paul.upcoming);
-
-for(const event of (paul.upcoming ?? [])){
     html += `
 
     <div class="event">
