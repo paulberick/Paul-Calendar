@@ -1,0 +1,17 @@
+# Windows
+Thumbs.db
+
+# macOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# Node
+node_modules/
+
+# Backups
+xx Backup/
+
+# Logs
+*.log

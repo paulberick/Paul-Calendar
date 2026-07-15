@@ -85,6 +85,8 @@ function updateDisplay(){
     const paul =
         getPaulDate(currentDate);
 
+console.log("PAUL OBJECT:", paul);
+
     /*------------------------------------------
     Gregorian
     ------------------------------------------*/
@@ -173,52 +175,48 @@ function updateDisplay(){
             paul.moon.night
         ]}`;
 
-    /*------------------------------------------
-    Astronomy
-    ------------------------------------------*/
+   /*------------------------------------------
+Paulmanac
+------------------------------------------*/
 
-if (paul.nextEvent) {
+let html = "";
 
-    // -------------------------------
-    // Next Lunar Event
-    // -------------------------------
+console.log(paul.upcoming);
 
-    if (paul.nextEvent.lunar) {
 
-        const lunar = paul.nextEvent.lunar;
+console.log("Upcoming:", paul.upcoming);
 
-        const lunarTitle =
-            lunar.name === "New Moon"
-                ? "New Moon"
-                : `${lunar.name} Moon`;
+for(const event of (paul.upcoming ?? [])){
+    html += `
 
-        document.getElementById("nextFullMoon").textContent =
-            lunarTitle;
+    <div class="event">
 
-        document.getElementById("nextFullMoonCountdown").textContent =
-            formatCountdown(lunar.date);
+        <div>
 
-    }
+            <div class="eventTitle">
 
-    // -------------------------------
-    // Next Solar Event
-    // -------------------------------
+                ${event.icon} ${event.title}
 
-    if (paul.nextEvent.solar) {
+            </div>
 
-        document.getElementById("nextEquinox").textContent =
-            paul.nextEvent.solar.type;
+            <div class="countdown">
 
-        document.getElementById("nextEquinoxCountdown").textContent =
-            formatCountdown(
-                paul.nextEvent.solar.date
-            );
+                ${formatCountdown(event.date)}
 
-    }
+            </div>
+
+        </div>
+
+    </div>
+
+    `;
 
 }
 
+document.getElementById("upcomingEvents").innerHTML =
+    html;
 }
+
 
 /*==================================================
 THE BOOK

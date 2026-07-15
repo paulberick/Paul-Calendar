@@ -20,8 +20,8 @@ from "./fullMoons.js";
 import { NEW_MOONS }
 from "./newMoons.js";
 
-// import { SOLAR_EVENTS }
-// from "./solarEvents.js";
+import { SOLAR_EVENTS }
+from "./solarEvents.js";
 
 import { DATABASE } from "./calendarDatabase.js";
 
@@ -321,7 +321,8 @@ function getNextAstronomyEvent(currentDate, solarYear){
 
     }
 
-    const nextSolar = null;
+	const nextSolar =
+    next(SOLAR_EVENTS[solarYear]);
 
     const nextFullMoon =
         next(FULL_MOONS[solarYear]);
@@ -350,15 +351,130 @@ function getNextAstronomyEvent(currentDate, solarYear){
 
     }
 
-    return{
 
-        solar:nextSolar,
+const nextPaulmanac =
+    next(FULL_MOONS[solarYear]);
 
-        lunar:nextLunar
+return {
 
-    };
+    solar: nextSolar,
+
+    lunar: nextLunar,
+
+    paulmanac: nextPaulmanac
+        ? {
+            title: `${nextPaulmanac.name} Moon Begins`,
+            date: nextPaulmanac.date
+        }
+        : null
+
+};
 
 }
+
+
+
+
+//==========================================================
+// UPCOMING EVENTS
+//==========================================================
+
+function getUpcomingEvents(currentDate, solarYear){
+
+    const events = [];
+
+    const today = new Date(currentDate);
+    today.setHours(0,0,0,0);
+
+    function add(icon, title, date){
+
+        if(!date) return;
+
+        const d = new Date(date);
+        d.setHours(0,0,0,0);
+
+        if(d < today) return;
+
+        events.push({
+
+            icon,
+            title,
+            date
+
+        });
+
+    }
+
+    //------------------------------------------------------
+    // Solar Events
+    //------------------------------------------------------
+
+    for(const event of SOLAR_EVENTS[solarYear]){
+
+        add(
+
+            "☀",
+
+            event.type,
+
+            event.date
+
+        );
+
+    }
+
+    //------------------------------------------------------
+    // Lunar Events
+    //------------------------------------------------------
+
+    for(const moon of NEW_MOONS[solarYear]){
+
+        add(
+
+            "🌙",
+
+            "New Moon",
+
+            moon.date
+
+        );
+
+    }
+
+    //------------------------------------------------------
+    // Paulmanac Events
+    //------------------------------------------------------
+
+    for(const moon of FULL_MOONS[solarYear]){
+
+        add(
+
+            "📖",
+
+            `${moon.name} Moon Begins`,
+
+            moon.date
+
+        );
+
+    }
+
+    //------------------------------------------------------
+
+    events.sort(
+
+        (a,b)=>
+
+            new Date(a.date)-new Date(b.date)
+
+    );
+
+    return events.slice(0,6);
+
+}
+
+
+
 
 
 //==========================================================
@@ -383,6 +499,14 @@ return{
     moon,
 
     nextEvent:getNextAstronomyEvent(
+
+        calendarDate,
+
+        solar.solarYear
+
+    ),
+
+    upcoming:getUpcomingEvents(
 
         calendarDate,
 

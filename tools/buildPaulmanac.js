@@ -104,6 +104,10 @@ const FULL_MOONS = {};
 const NEW_MOONS = {};
 const QUARTERS = {};
 const SOLAR_EVENTS = {};
+const METEOR_SHOWERS = {};
+const ECLIPSES = {};
+const CONJUNCTIONS = {};
+const COMETS = {};
 
 (async () => {
 
@@ -263,6 +267,60 @@ await fs.writeFile(
     `export const SOLAR_EVENTS = ${JSON.stringify(SOLAR_EVENTS, null, 4)};\n`,
     "utf8"
 );
+
+await fs.writeFile(
+
+    "./engine/meteorShowers.js",
+
+    header +
+
+    `export const METEOR_SHOWERS = ${JSON.stringify(METEOR_SHOWERS,null,4)};\n`,
+
+    "utf8"
+
+);
+
+await fs.writeFile(
+
+    "./engine/eclipses.js",
+
+    header +
+
+    `export const ECLIPSES = ${JSON.stringify(ECLIPSES,null,4)};\n`,
+
+    "utf8"
+
+);
+
+await fs.writeFile(
+
+    "./engine/conjunctions.js",
+
+    header +
+
+    `export const CONJUNCTIONS = ${JSON.stringify(CONJUNCTIONS,null,4)};\n`,
+
+    "utf8"
+
+);
+
+await fs.writeFile(
+
+    "./engine/comets.js",
+
+    header +
+
+    `export const COMETS = ${JSON.stringify(COMETS,null,4)};\n`,
+
+    "utf8"
+
+);
+
+console.log("✓ meteorShowers.js created");
+console.log("✓ eclipses.js created");
+console.log("✓ conjunctions.js created");
+console.log("✓ comets.js created");
+
 
 console.log("✓ solarEvents.js created");
 
