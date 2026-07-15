@@ -1,4 +1,9 @@
-import { getPaulDate } from "./engine/calendarEngine.js";
+import { getPaulDate } 
+from "./engine/calendarEngine.js";
+
+import { getSkyToday }
+from "./engine/skyToday.js";
+
 
 /*==================================================
 CURRENT DATE
@@ -80,10 +85,80 @@ function formatCountdown(targetDate){
 DISPLAY
 ==================================================*/
 
-function updateDisplay(){
+async function updateDisplay(){
 
     const paul =
         getPaulDate(currentDate);
+
+
+let latitude = 39.9612;
+let longitude = -82.9988;
+
+try {
+
+    const position = await new Promise(
+
+        (resolve, reject) =>
+
+            navigator.geolocation.getCurrentPosition(
+
+                resolve,
+
+                reject,
+
+                {
+
+                    enableHighAccuracy: false,
+
+                    maximumAge: 3600000,
+
+                    timeout: 5000
+
+                }
+
+            )
+
+    );
+
+    latitude = position.coords.latitude;
+    longitude = position.coords.longitude;
+
+}
+catch{
+
+    console.log(
+
+        "Using default location."
+
+    );
+
+}
+
+const sky = await getSkyToday(
+
+    latitude,
+
+    longitude,
+
+    currentDate
+
+);
+
+
+document.getElementById("sunrise").textContent =
+    sky.sunrise.replace(/:\d\d /," ");
+
+document.getElementById("sunset").textContent =
+    sky.sunset.replace(/:\d\d /," ");
+
+document.getElementById("moonrise").textContent =
+    sky.moonrise.replace(/:\d\d /," ");
+
+document.getElementById("moonset").textContent =
+    sky.moonset.replace(/:\d\d /," ");
+
+
+
 
 console.log("PAUL OBJECT:", paul);
 
@@ -101,6 +176,26 @@ console.log("PAUL OBJECT:", paul);
                 year:"numeric"
             }
         );
+
+
+document.getElementById("currentTime").textContent =
+    currentDate.toLocaleTimeString(
+
+        "en-US",
+
+        {
+
+            hour:"numeric",
+
+            minute:"2-digit"
+
+        }
+
+    );
+
+
+
+
 
     /*------------------------------------------
     Solar Coordinates
@@ -174,6 +269,19 @@ console.log("PAUL OBJECT:", paul);
         `Night ${numberWords[
             paul.moon.night
         ]}`;
+
+
+
+
+/*------------------------------------------
+Today's Sky
+------------------------------------------*/
+
+
+
+
+
+
 
 /*------------------------------------------
 Paulmanac
@@ -688,3 +796,13 @@ INITIALIZE
 ==================================================*/
 
 updateDisplay();
+
+
+if ("serviceWorker" in navigator) {
+
+    navigator.serviceWorker
+        .register("./service-worker.js")
+        .catch(console.error);
+
+}
+
