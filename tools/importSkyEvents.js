@@ -35,20 +35,48 @@ async function main() {
         events.push({
 
             date: row[0],
-
+        
             type: "meteor",
-
+        
             icon: "☄",
-
+        
             title: row[1],
-
-            description: "",
-
+        
+            description: row[2] || "",
+        
             learnMore: ""
-
+        
         });
 
     }
+
+//--------------------------------------------------
+// Solar
+//--------------------------------------------------
+
+for (const row of await readCsv("solar.csv")) {
+
+    events.push({
+
+        date: row[0],
+
+        type: row[1],
+
+        icon:
+            row[1] === "equinox"
+                ? "🌸"
+                : "☀️",
+
+        title: row[2],
+
+        description: row[3] || "",
+
+        learnMore: ""
+
+    });
+
+}
+
 
     //--------------------------------------------------
     // Eclipses
@@ -77,29 +105,36 @@ async function main() {
 
     }
 
-    //--------------------------------------------------
-    // Conjunctions
-    //--------------------------------------------------
+//--------------------------------------------------
+// Conjunctions
+//--------------------------------------------------
 
-    for (const row of await readCsv("conjunctions.csv")) {
+for (const row of await readCsv("conjunctions.csv")) {
 
-        events.push({
+    const bodies = row[1]
+        .split(/[,&•]/)
+        .map(x => x.trim())
+        .filter(Boolean);
 
-            date: row[0],
+    events.push({
 
-            type: "conjunction",
+        date: row[0],
 
-            icon: "🪐",
+        type: "conjunction",
 
-            title: row[1],
+        icon: bodies.length >= 3
+            ? "✨"
+            : "🪐",
 
-            description: "",
+title: row[1],
 
-            learnMore: ""
+description: row[2] || "",
 
-        });
+learnMore: ""
 
-    }
+    });
+
+}
 
     //--------------------------------------------------
     // Comets
@@ -117,11 +152,11 @@ async function main() {
 
             icon: "☄",
 
-            title: row[1],
+title: row[1],
 
-            description: "",
+description: row[2] || "",
 
-            learnMore: ""
+learnMore: ""
 
         });
 

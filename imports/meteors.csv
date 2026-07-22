@@ -1,9 +1,8 @@
-date,title
-2026-01-03,Quadrantids
-2026-04-22,Lyrids
-2026-05-06,Eta Aquariids
-2026-07-30,Delta Aquariids
-2026-08-12,Perseids
-2026-10-21,Orionids
-2026-11-17,Leonids
-2026-12-14,Geminids
+date,title,description
+2026-01-04,Quadrantids Peak,One of the year's strongest meteor showers.
+2026-04-22,Lyrids Peak,Ancient meteor shower known for occasional bright fireballs.
+2026-05-06,Eta Aquariids Peak,Fast meteors from Halley's Comet.
+2026-08-12,Perseids Peak,Perhaps the most beloved meteor shower of the year.
+2026-10-21,Orionids Peak,Another shower produced by Halley's Comet.
+2026-11-17,Leonids Peak,Famous for historic meteor storms.
+2026-12-14,Geminids Peak,Usually the year's richest meteor shower.

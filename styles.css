@@ -53,7 +53,7 @@ HEADER
 
 .topHeader h1{
 
-    font-size:2.7rem;
+    font-size:3rem;
 
     font-weight:700;
 
@@ -138,8 +138,8 @@ CARDS
 .card:hover{
 
     transform:
-
-        translateY(-4px);
+        translateY(-6px)
+        scale(1.01);
 
     box-shadow:
 
@@ -379,7 +379,7 @@ NAVIGATION
 
     display:flex;
 
-    gap:16px;
+    gap:18px;
 
     width:100%;
 
@@ -405,7 +405,7 @@ button{
 
     color:white;
 
-    padding:15px;
+    padding:18px;
 
     font-size:1rem;
 
@@ -823,5 +823,40 @@ MOBILE
         font-size:1.4rem;
 
     }
+
+}
+
+
+/*==========================================
+SKY VAULT
+==========================================*/
+
+.skyVaultCard{
+
+    grid-column:1 / -1;
+
+    padding:24px;
+
+}
+
+#vault{
+
+    width:100%;
+
+    height:auto;
+
+    display:block;
+
+    margin-top:10px;
+
+    border-radius:18px;
+
+    background:
+        radial-gradient(
+            ellipse at bottom,
+            #173566 0%,
+            #0b1424 68%,
+            #050a12 100%
+        );
 
 }

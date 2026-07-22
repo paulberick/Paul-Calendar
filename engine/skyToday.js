@@ -1,26 +1,44 @@
+import { getSky } from "./astronomy.js";
+
+function formatTime(astroTime) {
+
+    if (!astroTime)
+        return "—";
+
+    const date = astroTime.date ?? astroTime.toDate?.();
+
+    if (!date)
+        return "—";
+
+    return date.toLocaleTimeString([], {
+        hour: "numeric",
+        minute: "2-digit"
+    });
+
+}
+
 export async function getSkyToday(latitude, longitude, date) {
 
-    const yyyy = date.getFullYear();
-    const mm = String(date.getMonth() + 1).padStart(2, "0");
-    const dd = String(date.getDate()).padStart(2, "0");
-
-    const url =
-        `https://api.sunrisesunset.io/json?lat=${latitude}&lng=${longitude}&date=${yyyy}-${mm}-${dd}`;
-
-    const response = await fetch(url);
-
-    const json = await response.json();
+    const sky = getSky(latitude, longitude, date);
 
     return {
 
-        sunrise: json.results.sunrise,
+        sunrise: formatTime(sky.sunrise),
+        sunset: formatTime(sky.sunset),
 
-        sunset: json.results.sunset,
+        moonrise: formatTime(sky.moonrise),
+        moonset: formatTime(sky.moonset),
 
-        moonrise: json.results.moonrise,
+        civilDawn: formatTime(sky.civilDawn),
+        civilDusk: formatTime(sky.civilDusk),
 
-        moonset: json.results.moonset
+        nauticalDawn: formatTime(sky.nauticalDawn),
+        nauticalDusk: formatTime(sky.nauticalDusk),
+
+        astronomicalDawn: formatTime(sky.astronomicalDawn),
+        astronomicalDusk: formatTime(sky.astronomicalDusk),
+
+        goldenHour: formatTime(sky.goldenHour)
 
     };
-
 }

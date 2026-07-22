@@ -73,6 +73,12 @@ function nextYearData(year){
 
 }
 
+function allFullMoons() {
+
+    return databaseYears()
+        .flatMap(year => yearData(year).fullMoons ?? []);
+
+}
 
 //==========================================================
 // SOLAR YEAR
@@ -124,6 +130,14 @@ function getSolar(calendarDate){
     const followingYear =
 
         nextYearData(solarYear);
+
+        if (!followingYear) {
+
+            throw new Error(
+                `No astronomical data for ${solarYear + 1}.`
+            );
+        
+        }
 
     const day =
 
@@ -216,22 +230,14 @@ function firstRenewalMoon(year){
 
 //----------------------------------------------------------
 
-function findCurrentMoon(calendarDate, solarYear){
-
-    const moons =
-        yearData(solarYear).fullMoons;
+function findCurrentMoon(calendarDate) {
 
     let current = null;
 
-    for(const moon of moons){
+    for (const moon of allFullMoons()) {
 
-        if(compareDates(
-            calendarDate,
-            moon.date
-        ) >= 0){
-
+        if (compareDates(calendarDate, moon.date) >= 0) {
             current = moon;
-
         }
 
     }
@@ -263,10 +269,7 @@ function getMoon(calendarDate, solarYear){
 }   
 
 
-const moon = findCurrentMoon(
-    calendarDate,
-    solarYear
-);
+const moon = findCurrentMoon(calendarDate);
 
 if (!moon) {
 
@@ -324,14 +327,20 @@ function getNextAstronomyEvent(currentDate, solarYear){
 
     }
 
-	const nextSolar =
-    next(SOLAR_EVENTS[solarYear]);
+	const nextSolar = next([
+        ...(SOLAR_EVENTS[solarYear] ?? []),
+        ...(SOLAR_EVENTS[solarYear + 1] ?? [])
+    ]);
 
-    const nextFullMoon =
-        next(FULL_MOONS[solarYear]);
+    const nextFullMoon = next([
+        ...(FULL_MOONS[solarYear] ?? []),
+        ...(FULL_MOONS[solarYear + 1] ?? [])
+    ]);
 
-    const nextNewMoon =
-        next(NEW_MOONS[solarYear]);
+    const nextNewMoon = next([
+        ...(NEW_MOONS[solarYear] ?? []),
+        ...(NEW_MOONS[solarYear + 1] ?? [])
+    ]);
 
     let nextLunar = nextFullMoon;
 
@@ -355,8 +364,8 @@ function getNextAstronomyEvent(currentDate, solarYear){
     }
 
 
-const nextPaulmanac =
-    next(FULL_MOONS[solarYear]);
+    const nextPaulmanac =
+    next(yearData(solarYear).fullMoons);
 
 return {
 
@@ -414,7 +423,8 @@ function getPaulmanac(currentDate, solarYear){
     // next moon
     //------------------------------------------------------
 
-    const moon = (FULL_MOONS[solarYear] ?? []).find(m=>{
+    const moon =
+    (yearData(solarYear).fullMoons ?? []).find(m => {
 
         const d = new Date(m.date);
         d.setHours(0,0,0,0);
@@ -441,13 +451,16 @@ function getPaulmanac(currentDate, solarYear){
     // next solar event
     //------------------------------------------------------
 
-    const solar = (SOLAR_EVENTS[solarYear] ?? []).find(s=>{
-
+    const solar = [
+        ...(SOLAR_EVENTS[solarYear] ?? []),
+        ...(SOLAR_EVENTS[solarYear + 1] ?? [])
+    ].find(s => {
+    
         const d = new Date(s.date);
         d.setHours(0,0,0,0);
-
+    
         return d >= today;
-
+    
     });
 
     if(solar){
@@ -468,18 +481,17 @@ function getPaulmanac(currentDate, solarYear){
     // sky events
     //------------------------------------------------------
 
-    for(const event of (SKY_EVENTS[solarYear] ?? [])){
-
+    for (const event of [
+        ...(SKY_EVENTS[solarYear] ?? []),
+        ...(SKY_EVENTS[solarYear + 1] ?? [])
+    ]) {
+    
         add(
-
             event.icon,
-
             event.title,
-
             event.date
-
         );
-
+    
     }
 
     //------------------------------------------------------

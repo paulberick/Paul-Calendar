@@ -4,12 +4,22 @@ from "./engine/calendarEngine.js";
 import { getSkyToday }
 from "./engine/skyToday.js";
 
+import { buildSkyScene }
+from "./engine/skyScene.js";
+
+import { renderSkyVault }
+from "./ui/components/SkyVault.js";
 
 /*==================================================
 CURRENT DATE
 ==================================================*/
 
 let currentDate = new Date();
+
+
+let cachedSky = null;
+let cachedSkyDate = "";
+let cachedPosition = null;
 
 /*==================================================
 NUMBER WORDS
@@ -32,7 +42,8 @@ const numberWords = [
 "Twenty-Two","Twenty-Three",
 "Twenty-Four","Twenty-Five",
 "Twenty-Six","Twenty-Seven",
-"Twenty-Eight"
+"Twenty-Eight","Twenty-Nine",
+"Thirty","Thirty-One"
 ];
 
 const ordinalWords = [
@@ -46,7 +57,10 @@ const ordinalWords = [
 "Twenty-First","Twenty-Second",
 "Twenty-Third","Twenty-Fourth",
 "Twenty-Fifth","Twenty-Sixth",
-"Twenty-Seventh","Twenty-Eighth"
+"Twenty-Seventh","Twenty-Eighth",
+"Twenty-Ninth",
+"Thirtieth",
+"Thirty-First"
 ];
 
 /*==================================================
@@ -72,7 +86,7 @@ function formatCountdown(targetDate){
         return "";
 
     if(days === 0)
-        return "TODAY";
+        return "Tonight";
 
     if(days === 1)
         return "Tomorrow";
@@ -85,85 +99,174 @@ function formatCountdown(targetDate){
 DISPLAY
 ==================================================*/
 
+function parseTodayTime(timeString) {
+
+    if (!timeString || timeString === "—")
+        return Number.MAX_SAFE_INTEGER;
+
+    const d = new Date(`2000-01-01 ${timeString}`);
+
+    return d.getTime();
+
+}
+
+
 async function updateDisplay(){
 
     const paul =
         getPaulDate(currentDate);
+        console.log("PAUL:", paul);
+        console.log("MOON:", paul.moon);
 
+const todayKey = currentDate.toISOString().slice(0,10);
 
-let latitude = 39.9612;
-let longitude = -82.9988;
+if (!cachedPosition) {
 
-try {
+    try {
 
-    const position = await new Promise(
+        cachedPosition = await new Promise(
 
-        (resolve, reject) =>
+            (resolve, reject) =>
 
-            navigator.geolocation.getCurrentPosition(
+                navigator.geolocation.getCurrentPosition(
 
-                resolve,
+                    resolve,
 
-                reject,
+                    reject,
 
-                {
+                    {
 
-                    enableHighAccuracy: false,
+                        enableHighAccuracy:false,
 
-                    maximumAge: 3600000,
+                        maximumAge:86400000,
 
-                    timeout: 5000
+                        timeout:5000
 
-                }
+                    }
 
-            )
+                )
+
+        );
+
+    }
+
+    catch {
+
+        cachedPosition = {
+
+            coords:{
+
+                latitude:39.9612,
+
+                longitude:-82.9988
+
+            }
+
+        };
+
+    }
+
+}
+
+if (!cachedSky || cachedSkyDate !== todayKey) {
+
+    cachedSky = await getSkyToday(
+
+        cachedPosition.coords.latitude,
+
+        cachedPosition.coords.longitude,
+
+        currentDate
 
     );
 
-    latitude = position.coords.latitude;
-    longitude = position.coords.longitude;
-
-}
-catch{
-
-    console.log(
-
-        "Using default location."
-
-    );
+    cachedSkyDate = todayKey;
 
 }
 
-const sky = await getSkyToday(
+const sky = cachedSky;
 
-    latitude,
 
-    longitude,
+const observer = {
+    latitude: cachedPosition.coords.latitude,
+    longitude: cachedPosition.coords.longitude,
+    height: 250
+};
 
-    currentDate
-
+const scene = buildSkyScene(
+    currentDate,
+    observer
 );
 
+const vault = document.getElementById("vault");
 
-document.getElementById("sunrise").textContent =
-    sky.sunrise.replace(/:\d\d /," ");
-
-document.getElementById("sunset").textContent =
-    sky.sunset.replace(/:\d\d /," ");
-
-document.getElementById("moonrise").textContent =
-    sky.moonrise.replace(/:\d\d /," ");
-
-document.getElementById("moonset").textContent =
-    sky.moonset.replace(/:\d\d /," ");
+if (vault) {
+    renderSkyVault(vault, scene);
+}
 
 
+console.log("DATE:", currentDate.toISOString());
+console.log("SKY:", sky);
+
+
+
+
+
+
+console.log("Golden Morning:",
+    sky.goldenMorningStart,
+    sky.goldenMorningEnd);
+
+console.log("Golden Evening:",
+    sky.goldenEveningStart,
+    sky.goldenEveningEnd);
+
+
+
+
+
+
+
+
+
+
+    const skyEvents = [
+        { icon: "🌅", label: "Sunrise",     time: sky.sunrise },
+        { icon: "🌙", label: "Moonrise",    time: sky.moonrise },
+        { icon: "🌅", label: "Golden Hour", time: sky.goldenHour },
+        { icon: "🌇", label: "Sunset",      time: sky.sunset },
+        { icon: "🌘", label: "Moonset",     time: sky.moonset }
+    ];
+    
+    function parseSkyTime(timeString) {
+    
+        if (!timeString || timeString === "—")
+            return Number.MAX_SAFE_INTEGER;
+    
+        const d = new Date(`2000-01-01 ${timeString}`);
+    
+        return d.getTime();
+    }
+    
+    skyEvents.sort((a, b) => parseSkyTime(a.time) - parseSkyTime(b.time));
+    
+    document.getElementById("todaySkyEvents").innerHTML =
+        skyEvents.map(event => `
+            <div class="event">
+                <div>
+                    <div class="eventTitle">
+                        ${event.icon} ${event.label}
+                    </div>
+                    <div>${event.time}</div>
+                </div>
+            </div>
+        `).join("");
 
 
 console.log("PAUL OBJECT:", paul);
 
     /*------------------------------------------
-    Gregorian
+    Gregorian above this is garbage.
     ------------------------------------------*/
 
     document.getElementById("gregorianDate").textContent =
@@ -265,10 +368,13 @@ document.getElementById("currentTime").textContent =
        Night Two
     */
 
-    document.getElementById("moonPhrase").textContent =
-        `Night ${numberWords[
-            paul.moon.night
-        ]}`;
+       const moonPhrase =
+       paul.moon.night == null
+           ? "Moon data unavailable"
+           : `Night ${numberWords[paul.moon.night]}`;
+   
+   document.getElementById("moonPhrase").textContent =
+       moonPhrase;
 
 
 
@@ -331,7 +437,7 @@ let currentAboutPage = 0;
 const aboutPages = [
 
 {
-title:"Paul's Calendar",
+title:"Paulmanac",
 
 art:"🌍 ☀️ 🌕",
 
@@ -355,7 +461,7 @@ the Sun, Moon & Earth
 
 <div class="coverLarge">
 
-Paul's Calendar
+Paulmanac
 
 </div>
 
@@ -379,77 +485,105 @@ body:`
 
 <p>
 
-Beautiful Persephone once danced beneath the spring sun,
-daughter of Demeter, goddess of the harvest.
-Where she walked, flowers followed.
+Beautiful Persephone once danced in sunlit meadows, daughter of Demeter, goddess of the harvest. Her laughter drifted through wildflowers, and every step coaxed new blossoms from the earth. She was spring incarnate, her world a tapestry of eternal growth beneath her mother's golden gaze.
 
 </p>
 
 <p>
 
-Then the earth opened.
-
-Hades carried her into the Underworld,
-changing not only her destiny,
-but the rhythm of the seasons forever.
+Yet beneath this splendor, the earth held shadows. Hades, lord of the underworld, beheld her radiance and longed to claim it. In a single moment, the ground split open, and he swept Persephone into the depths, her cries echoing upward as petals fell.
 
 </p>
 
 <p>
 
-Each spring she returns.
+Time passed in the underworld, and Persephone was transformed. No longer only a maiden, she became Queen beside Hades. Though her heart longed for the world above, she came to understand the quiet beauty and solemn purpose of the realm below.
 
-Each autumn she descends.
+</p>
 
-The Earth remembers.
+<p>
 
-So do we.
+Meanwhile, Demeter's grief spread across the Earth. Crops withered, flowers faded, and winter settled over the land. At last Zeus decreed a compromise: Persephone would spend part of each year in the underworld and part with her mother upon the Earth.
+
+</p>
+
+<p>
+
+Thus began the great rhythm of the seasons. When Persephone returns, spring awakens, flowers unfurl, and the world bursts into life. When she descends once more, autumn yields to winter, and the Earth rests until her return.
+
+</p>
+
+<p>
+
+Paulmanac follows this rhythm. Each year begins with Persephone's return at the Spring Equinox, reminding us that every ending carries within it the promise of renewal.
 
 </p>
 
 `
 },
-
 {
-title:"Why Another Calendar?",
+title:"Why Paulmanac Exists",
 
-art:"☀️",
+art:"🌍",
 
 body:`
 
 <p>
 
-Nature does not recognize January 1.
+Every day, countless systems compete for our attention.
 
-The Earth awakens at the Spring Equinox.
-
-That is where this calendar begins.
+Notifications, deadlines, schedules, and endless streams of information ask us to look downward—toward our devices, our obligations, and the clocks that measure them.
 
 </p>
 
 <p>
 
-Each Solar Year contains
-Thirteen Quatrains,
-plus one great celebration at year's end.
+<b>Other apps say, "Look at me."</b>
 
 </p>
 
 <p>
 
-It is simple.
-
-Predictable.
-
-And aligned with the seasons.
+<b>Paulmanac quietly says, "🌅 Look up."</b>
 
 </p>
 
-`
-},
+<p>
+
+It is not a replacement for the Gregorian calendar.
+
+It is a companion.
+
+A gentle reminder that another rhythm has always existed alongside the one we created.
+
+</p>
+
+<p>
+
+The Sun still marks the seasons.
+
+<br>
+
+The Moon still keeps her ancient cycle.
+
+<br>
+
+The Earth still carries us through space.
+
+</p>
+
+<p>
+
+If this calendar helps you pause, breathe, step outside, or simply remember where you are beneath the sky...
+
+then it has fulfilled its purpose.
+
+</p>
+
+`},
 
 {
-title:"The Moon",
+title:"The Sun & Moon",
 
 art:"🌕",
 
@@ -457,29 +591,34 @@ body:`
 
 <p>
 
-While the Sun governs our days,
-the Moon quietly governs our nights.
+The solar year begins with the Spring Equinox and unfolds through thirteen equal Quatrains.
 
 </p>
 
 <p>
 
-Each Full Moon begins a new Moon.
+The Moon follows her own independent rhythm.
 
-The Solar Year and Lunar Year overlap naturally,
-just as they do in the heavens.
+Each Full Moon begins a new Moonth.
 
 </p>
 
 <p>
 
-Rather than forcing them into agreement,
+Rather than forcing the Sun and Moon into agreement, Paulmanac allows each to keep its own beautiful rhythm.
 
-this calendar lets each keep its own rhythm.
+</p>
+
+<p>
+
+Let the Sun shape your days.
+
+Let the Moon guide your nights.
 
 </p>
 
 `
+
 },
 
 {
@@ -497,65 +636,71 @@ The weekdays honor the forces that shape life.
 
 <ul class="moonList">
 
-<li>☀ Solday</li>
+<li>☀ <b>Solday</b> — the Sun's radiant gift of life.</li>
 
-<li>🌙 Lunaday</li>
+<li>🌙 <b>Lunaday</b> — the Moon's gentle guidance through the night.</li>
 
-<li>🌍 Terraday</li>
+<li>🌍 <b>Terraday</b> — the Earth's steadfast embrace beneath our feet.</li>
 
-<li>💧 Waterday</li>
+<li>💧 <b>Waterday</b> — transformation, emotion, and renewal.</li>
 
-<li>🌌 Dreamday</li>
+<li>🌌 <b>Dreamday</b> — the underworld and dreamworld we all visit each night.</li>
 
-<li>🔥 Fireday</li>
+<li>🔥 <b>Fireday</b> — Hades, change, loss, and the courage to become someone new.</li>
 
-<li>☮ Paxday</li>
+<li>☮ <b>Paxday</b> — peace found through embracing uncertainty with grace.</li>
 
 </ul>
+
 
 `
 },
 
 {
-title:"The Thirteen Moons",
+title:"The Thirteen Moonths",
 
 art:"🌱 🌸 🌾",
 
 body:`
 
+<p>
+
+Throughout history, cultures have named the Full Moons according to the seasons, the land, and the lives they lived beneath them. Paulmanac continues that tradition. Each Full Moon begins a new Moonth, reminding us that while calendars may change, the sky continues its ancient rhythm.
+
+</p>
+
 <ul class="moonList">
 
-<li>🌱 Renewal</li>
+<li>🌱 <b>Renewal</b> — the Earth's first breath after winter.</li>
 
-<li>🌸 Flower</li>
+<li>🌸 <b>Flower</b> — blossoms, possibility, and new beginnings.</li>
 
-<li>💃 Dance</li>
+<li>💃 <b>Dance</b> — celebration, movement, and the joy of longer days.</li>
 
-<li>💧 Water</li>
+<li>💧 <b>Water</b> — life, nourishment, and quiet transformation.</li>
 
-<li>☀ Hot</li>
+<li>☀ <b>Hot</b> — the warmth and abundance of midsummer.</li>
 
-<li>🥾 Pilgrim</li>
+<li>🥾 <b>Pilgrim</b> — journeys outward and inward.</li>
 
-<li>❤️ Love</li>
+<li>❤️ <b>Love</b> — connection, gratitude, and golden evenings.</li>
 
-<li>🌾 Gather</li>
+<li>🌾 <b>Gather</b> — the harvest of fields, friendships, and experience.</li>
 
-<li>❄ Ice</li>
+<li>❄ <b>Ice</b> — the first quiet breath of winter.</li>
 
-<li>✨ Spirit</li>
+<li>✨ <b>Spirit</b> — reflection beneath long nights and bright stars.</li>
 
-<li>🦴 Bone</li>
+<li>🦴 <b>Bone</b> — mortality, resilience, and what endures.</li>
 
-<li>🐦‍⬛ Crow</li>
+<li>🐦‍⬛ <b>Crow</b> — wisdom, mystery, playfulness, and remembrance.</li>
 
-<li>🕯 Ancestor</li>
+<li>🕯 <b>Ancestor</b> — those who came before us, whose stories continue through us.</li>
 
 </ul>
 
 `
 },
-
 {
 title:"Astronomy",
 
@@ -588,9 +733,9 @@ Eclipses.
 
 <p>
 
-The heavens determine the calendar.
+The heavens are not adjusted to fit the calendar.
 
-Not the other way around.
+The calendar is adjusted to fit the heavens.
 
 </p>
 
@@ -769,6 +914,28 @@ document.getElementById("nextDay").onclick = () => {
     updateDisplay();
 
 };
+
+//--------------------------------------------------
+// Refresh when app becomes visible again
+//--------------------------------------------------
+
+document.addEventListener(
+
+    "visibilitychange",
+
+    () => {
+
+        if (!document.hidden) {
+
+            updateDisplay();
+
+        }
+
+    }
+
+);
+
+
 
 /*==================================================
 PLACEHOLDER BUTTONS

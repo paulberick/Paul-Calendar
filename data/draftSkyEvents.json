@@ -1,42 +1,50 @@
 [
     {
-        "date": "2026-01-03",
+        "date": "2026-01-04",
         "type": "meteor",
         "icon": "☄",
-        "title": "Quadrantids",
-        "description": "",
+        "title": "Quadrantids Peak",
+        "description": "One of the year's strongest meteor showers.",
+        "learnMore": ""
+    },
+    {
+        "date": "2026-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
         "learnMore": ""
     },
     {
         "date": "2026-04-22",
         "type": "meteor",
         "icon": "☄",
-        "title": "Lyrids",
-        "description": "",
+        "title": "Lyrids Peak",
+        "description": "Ancient meteor shower known for occasional bright fireballs.",
         "learnMore": ""
     },
     {
         "date": "2026-05-06",
         "type": "meteor",
         "icon": "☄",
-        "title": "Eta Aquariids",
-        "description": "",
+        "title": "Eta Aquariids Peak",
+        "description": "Fast meteors from Halley's Comet.",
         "learnMore": ""
     },
     {
-        "date": "2026-07-30",
-        "type": "meteor",
-        "icon": "☄",
-        "title": "Delta Aquariids",
-        "description": "",
+        "date": "2026-06-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
         "learnMore": ""
     },
     {
         "date": "2026-08-12",
         "type": "meteor",
         "icon": "☄",
-        "title": "Perseids",
-        "description": "",
+        "title": "Perseids Peak",
+        "description": "Perhaps the most beloved meteor shower of the year.",
         "learnMore": ""
     },
     {
@@ -56,35 +64,811 @@
         "learnMore": ""
     },
     {
-        "date": "2026-10-21",
-        "type": "meteor",
-        "icon": "☄",
-        "title": "Orionids",
-        "description": "",
+        "date": "2026-09-23",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
         "learnMore": ""
     },
     {
-        "date": "2026-11-02",
-        "type": "conjunction",
-        "icon": "🪐",
-        "title": "Venus with Jupiter",
-        "description": "",
+        "date": "2026-10-21",
+        "type": "meteor",
+        "icon": "☄",
+        "title": "Orionids Peak",
+        "description": "Another shower produced by Halley's Comet.",
         "learnMore": ""
     },
     {
         "date": "2026-11-17",
         "type": "meteor",
         "icon": "☄",
-        "title": "Leonids",
-        "description": "",
+        "title": "Leonids Peak",
+        "description": "Famous for historic meteor storms.",
         "learnMore": ""
     },
     {
         "date": "2026-12-14",
         "type": "meteor",
         "icon": "☄",
-        "title": "Geminids",
-        "description": "",
+        "title": "Geminids Peak",
+        "description": "Usually the year's richest meteor shower.",
+        "learnMore": ""
+    },
+    {
+        "date": "2026-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2027-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2027-06-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2027-09-23",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2027-12-22",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2028-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2028-06-20",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2028-09-22",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2028-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2029-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2029-06-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2029-09-22",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2029-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2030-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2030-06-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2030-09-22",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2030-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2031-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2031-06-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2031-09-23",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2031-12-22",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2032-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2032-06-20",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2032-09-22",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2032-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2033-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2033-06-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2033-09-22",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2033-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2034-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2034-06-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2034-09-22",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2034-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2035-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2035-06-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2035-09-23",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2035-12-22",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2036-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2036-06-20",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2036-09-22",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2036-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2037-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2037-06-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2037-09-22",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2037-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2038-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2038-06-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2038-09-22",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2038-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2039-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2039-06-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2039-09-23",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2039-12-22",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2040-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2040-06-20",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2040-09-22",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2040-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2041-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2041-06-20",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2041-09-22",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2041-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2042-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2042-06-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2042-09-22",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2042-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2043-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2043-06-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2043-09-23",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2043-12-22",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2044-03-19",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2044-06-20",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2044-09-22",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2044-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2045-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2045-06-20",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2045-09-22",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2045-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2046-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2046-06-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2046-09-22",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2046-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2047-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2047-06-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2047-09-23",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2047-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2048-03-19",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2048-06-20",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2048-09-22",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2048-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2049-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2049-06-20",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2049-09-22",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2049-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2050-03-20",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Spring Equinox",
+        "description": "Persephone returns. The Paulmanac year begins.",
+        "learnMore": ""
+    },
+    {
+        "date": "2050-06-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Summer Solstice",
+        "description": "The longest day of the year.",
+        "learnMore": ""
+    },
+    {
+        "date": "2050-09-22",
+        "type": "equinox",
+        "icon": "🌸",
+        "title": "Autumn Equinox",
+        "description": "Day and night stand in balance.",
+        "learnMore": ""
+    },
+    {
+        "date": "2050-12-21",
+        "type": "solstice",
+        "icon": "☀️",
+        "title": "Winter Solstice",
+        "description": "The longest night of the year.",
         "learnMore": ""
     }
 ]

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>Paulmanac Sky Vault</title>
+
+<style>
+
+body{
+
+    margin:0;
+    background:#08111f;
+    color:white;
+    font-family:Segoe UI,sans-serif;
+
+}
+
+svg{
+
+    display:block;
+    width:100%;
+    max-width:900px;
+
+    height:420px;
+
+    margin:40px auto;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<svg
+    id="vault"
+    viewBox="0 0 900 420">
+</svg>
+
+<script type="module">
+
+import { renderSkyVault }
+from "../ui/components/SkyVault.js";
+
+
+
+
+
+import { buildSkyScene }
+from "../engine/skyScene.js";
+
+
+const observer = {
+
+    latitude: 39.9612,
+    longitude: -82.9988,
+    height: 250
+
+};
+
+const scene = buildSkyScene(
+
+    new Date(),
+    observer
+
+);
+
+
+    renderSkyVault(
+    document.getElementById("vault"),
+    scene
+);
+
+</script>
+
+</body>
+
+</html>
