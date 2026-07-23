@@ -7,8 +7,7 @@ from "./engine/skyToday.js";
 import { buildSkyScene }
 from "./engine/skyScene.js";
 
-import { renderSkyVault }
-from "./ui/components/SkyVault.js";
+import { renderSkyVault, moonEmoji } from "./ui/components/SkyVault.js";
 
 /*==================================================
 CURRENT DATE
@@ -380,9 +379,19 @@ document.getElementById("currentTime").textContent =
 
 
 /*------------------------------------------
-Today's Sky
+Grok's Moon Thing!
 ------------------------------------------*/
 
+
+// Find the Moon in the current sky scene
+const moonBody = scene.bodies.find(b => b.name === "Moon");
+
+const moonIconEl = document.getElementById("moonIcon");
+if (moonIconEl && moonBody) {
+    moonIconEl.textContent = moonEmoji(moonBody.phaseAngle);
+} else if (moonIconEl) {
+    moonIconEl.textContent = "🌕"; // fallback
+}
 
 
 
