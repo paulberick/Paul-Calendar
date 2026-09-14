@@ -839,6 +839,60 @@ SKY VAULT
 
 }
 
+
+
+.skyVaultHeader{
+
+    display:flex;
+
+    align-items:baseline;
+
+    justify-content:space-between;
+
+    gap:12px;
+
+    flex-wrap:wrap;
+
+}
+
+.skyVaultHeader h2{
+
+    margin:0;
+
+}
+
+.skyLocation{
+
+    font-size:0.92rem;
+
+    font-weight:500;
+
+    letter-spacing:0.02em;
+
+    color:#9fb3d9;
+
+    opacity:0.95;
+
+}
+
+.overheadBlurb{
+
+    font-size:0.82rem;
+
+    opacity:0.85;
+
+    margin-top:6px;
+
+    color:#c8d4ee;
+
+    line-height:1.35;
+
+    font-style:italic;
+
+    font-weight:400;
+
+}
+
 #vault{
 
     width:100%;

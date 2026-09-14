@@ -19,6 +19,7 @@ let currentDate = new Date();
 let cachedSky = null;
 let cachedSkyDate = "";
 let cachedPosition = null;
+let cachedGeoOk = false;
 
 /*==================================================
 NUMBER WORDS
@@ -94,6 +95,276 @@ function formatCountdown(targetDate){
 
 }
 
+
+/*==================================================
+OVERHEAD COMPANION COPY
+==================================================*/
+
+const KNOWN_BODIES = [
+    "Sun", "Moon", "Mercury", "Venus",
+    "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"
+];
+
+function displayBodyName(name) {
+    return name === "Moon" ? "the Moon" : name;
+}
+
+function formatBodyList(bodies) {
+    const names = bodies.map(displayBodyName);
+    if (names.length === 0) return "";
+    if (names.length === 1) return names[0];
+    if (names.length === 2) return `${names[0]} and ${names[1]}`;
+    return `${names.slice(0, -1).join(", ")}, and ${names[names.length - 1]}`;
+}
+
+function extractBodiesFromTitle(title) {
+    if (!title) return [];
+
+    let cleaned = String(title)
+        .replace(/\s+Peak$/i, "")
+        .replace(/^Triple:\s*/i, "")
+        .trim();
+
+    // Normalize common conjunction separators into a split delimiter
+    cleaned = cleaned
+        .replace(/\s+meets\s+/gi, " + ")
+        .replace(/\s+with\s+/gi, " + ")
+        .replace(/\s*•\s*/g, " + ");
+
+    const parts = cleaned.split(/\s*\+\s*/).map(p => p.trim()).filter(Boolean);
+    const found = [];
+
+    for (const part of parts) {
+        const match = KNOWN_BODIES.find(
+            body => body.toLowerCase() === part.toLowerCase()
+        );
+        if (match && !found.includes(match)) found.push(match);
+    }
+
+    // Also catch "Moon meets Jupiter" if split missed a single token phrase
+    if (found.length === 0) {
+        for (const body of KNOWN_BODIES) {
+            const re = new RegExp(`\\b${body}\\b`, "i");
+            if (re.test(title) && !found.includes(body)) found.push(body);
+        }
+    }
+
+    return found;
+}
+
+function cleanEventLabel(title) {
+    return String(title)
+        .replace(/\s+Peak$/i, "")
+        .replace(/^Triple:\s*/i, "")
+        .trim();
+}
+
+function isConjunctionLikeTitle(title) {
+    const bodies = extractBodiesFromTitle(title);
+    if (bodies.length >= 2) return true;
+    return /\bmeets\b|\+|with|•/i.test(title);
+}
+
+/**
+ * Build natural overhead copy from nearby Paulmanac events.
+ * Dedupes bodies across overlapping conjunction titles so we never
+ * produce mashups like "Jupiter + Mars + Moon and Moon + Jupiter".
+ */
+export function formatOverheadCompanion(paul, date = new Date()) {
+    const today = new Date(date);
+    today.setHours(0, 0, 0, 0);
+
+    const nearby = (paul?.paulmanac || []).filter(event => {
+        const d = new Date(event.date);
+        d.setHours(0, 0, 0, 0);
+        const dayDelta = Math.round((d - today) / 86400000);
+        const windowDays = event.windowDays ?? 1;
+        return dayDelta >= -windowDays && dayDelta <= windowDays;
+    });
+
+    if (nearby.length === 0) return null;
+
+    const bodies = [];
+    const namedEvents = [];
+
+    for (const event of nearby) {
+        if (isConjunctionLikeTitle(event.title)) {
+            for (const body of extractBodiesFromTitle(event.title)) {
+                if (!bodies.includes(body)) bodies.push(body);
+            }
+        } else {
+            const label = cleanEventLabel(event.title);
+            if (label && !namedEvents.includes(label)) namedEvents.push(label);
+        }
+    }
+
+    const clauses = [];
+
+    if (bodies.length >= 2) {
+        clauses.push(`${formatBodyList(bodies)} share the sky`);
+    } else if (bodies.length === 1) {
+        clauses.push(`${formatBodyList(bodies)} is brightening the sky tonight`);
+    }
+
+    for (const label of namedEvents) {
+        // Meteor showers and named sky events
+        if (/eclipse/i.test(label)) {
+            clauses.push(`the ${label} is underway`);
+        } else {
+            clauses.push(`the ${label} are active overhead`);
+        }
+    }
+
+    if (clauses.length === 0) return null;
+
+    let sentence = clauses[0];
+    if (clauses.length === 2) {
+        sentence = `${clauses[0]}, and ${clauses[1]}`;
+    } else if (clauses.length > 2) {
+        sentence = `${clauses.slice(0, -1).join("; ")}; and ${clauses[clauses.length - 1]}`;
+    }
+
+    // Visibility hint (optional, from curated data)
+    const visibility = nearby
+        .map(e => e.visibleFromHome)
+        .filter(v => v !== undefined);
+
+    if (visibility.length > 0) {
+        const anyVisible = visibility.some(v => v === true);
+        const allVisible = visibility.every(v => v === true);
+        if (allVisible) sentence += " — look up";
+        else if (anyVisible) sentence += " — partly visible from here";
+        else sentence += " — not really visible from here";
+    }
+
+    // Capitalize first letter; keep "the Moon" mid-sentence as-is
+    sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1);
+    return sentence.endsWith(".") ? sentence : `${sentence}.`;
+}
+
+/*==================================================
+SKY MAP LOCATION LABEL
+==================================================*/
+
+const LOCATION_CACHE_KEY = "paulCalendar.skyLocation";
+const DEFAULT_COORDS = { latitude: 39.9612, longitude: -82.9988 };
+
+function formatCoordLabel(lat, lon) {
+    const ns = lat >= 0 ? "N" : "S";
+    const ew = lon >= 0 ? "E" : "W";
+    return `${Math.abs(lat).toFixed(2)}°${ns}, ${Math.abs(lon).toFixed(2)}°${ew}`;
+}
+
+function readCachedCity() {
+    try {
+        const raw = localStorage.getItem(LOCATION_CACHE_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        return parsed?.label || null;
+    } catch {
+        return null;
+    }
+}
+
+function writeCachedCity(label, coords) {
+    try {
+        localStorage.setItem(
+            LOCATION_CACHE_KEY,
+            JSON.stringify({
+                label,
+                latitude: coords?.latitude,
+                longitude: coords?.longitude,
+                savedAt: Date.now()
+            })
+        );
+    } catch {
+        /* ignore quota / private mode */
+    }
+}
+
+async function reverseGeocodeCity(latitude, longitude) {
+    const url =
+        "https://api.bigdatacloud.net/data/reverse-geocode-client" +
+        `?latitude=${encodeURIComponent(latitude)}` +
+        `&longitude=${encodeURIComponent(longitude)}` +
+        "&localityLanguage=en";
+
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`geocode ${response.status}`);
+
+    const data = await response.json();
+    const city =
+        data.city ||
+        data.locality ||
+        data.localityInfo?.administrative?.[0]?.name ||
+        null;
+    const region =
+        data.principalSubdivisionCode?.replace(/^[A-Z]+-/, "") ||
+        data.principalSubdivision ||
+        null;
+
+    if (city && region && region.length <= 12 && region !== city) {
+        return `${city}, ${region}`;
+    }
+    if (city) return city;
+    if (data.countryName) return data.countryName;
+    return null;
+}
+
+function setSkyLocationLabel(text) {
+    const el = document.getElementById("skyLocation");
+    if (el) el.textContent = text;
+}
+
+/**
+ * Resolve a user-facing location label for the sky map.
+ * Uses browser geolocation result when available, BigDataCloud reverse
+ * geocode (no API key; GH Pages friendly), then last-known / coords.
+ */
+async function updateSkyLocationLabel(position, geoOk) {
+    setSkyLocationLabel("Locating…");
+
+    const coords = position?.coords;
+    const lat = coords?.latitude;
+    const lon = coords?.longitude;
+
+    if (geoOk && lat != null && lon != null) {
+        try {
+            const city = await reverseGeocodeCity(lat, lon);
+            if (city) {
+                writeCachedCity(city, { latitude: lat, longitude: lon });
+                setSkyLocationLabel(city);
+                return;
+            }
+        } catch (err) {
+            console.warn("Reverse geocode failed:", err);
+        }
+
+        const cached = readCachedCity();
+        if (cached) {
+            setSkyLocationLabel(cached);
+            return;
+        }
+
+        setSkyLocationLabel(formatCoordLabel(lat, lon));
+        return;
+    }
+
+    const cached = readCachedCity();
+    if (cached) {
+        setSkyLocationLabel(cached);
+        return;
+    }
+
+    if (lat != null && lon != null) {
+        setSkyLocationLabel(formatCoordLabel(lat, lon));
+        return;
+    }
+
+    setSkyLocationLabel("Location unavailable");
+}
+
+
 /*==================================================
 DISPLAY
 ==================================================*/
@@ -146,6 +417,7 @@ if (!cachedPosition) {
                 )
 
         );
+        cachedGeoOk = true;
 
     }
 
@@ -155,17 +427,21 @@ if (!cachedPosition) {
 
             coords:{
 
-                latitude:39.9612,
+                latitude: DEFAULT_COORDS.latitude,
 
-                longitude:-82.9988
+                longitude: DEFAULT_COORDS.longitude
 
             }
 
         };
+        cachedGeoOk = false;
 
     }
 
 }
+
+// City / location label on sky map chrome (non-blocking refresh)
+updateSkyLocationLabel(cachedPosition, cachedGeoOk);
 
 if (!cachedSky || cachedSkyDate !== todayKey) {
 
@@ -367,13 +643,27 @@ document.getElementById("currentTime").textContent =
        Night Two
     */
 
-       const moonPhrase =
-       paul.moon.night == null
-           ? "Moon data unavailable"
-           : `Night ${numberWords[paul.moon.night]}`;
-   
-   document.getElementById("moonPhrase").textContent =
-       moonPhrase;
+       const companion = formatOverheadCompanion(paul, currentDate);
+       const moonPhraseEl = document.getElementById("moonPhrase");
+
+       if (paul.moon.night == null) {
+           moonPhraseEl.textContent = "Moon data unavailable";
+       } else if (companion) {
+           moonPhraseEl.innerHTML = `
+    Night ${numberWords[paul.moon.night] ?? "—"}
+    <div class="overheadBlurb">
+        ${companion}
+    </div>
+`;
+       } else {
+           moonPhraseEl.textContent = `Night ${numberWords[paul.moon.night]}`;
+       }
+
+       console.log("COMPANION DEBUG:", {
+           companion,
+           paulmanac: paul.paulmanac,
+           today: currentDate.toISOString().slice(0, 10)
+       });
 
 
 

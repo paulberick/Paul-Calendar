@@ -400,7 +400,7 @@ function getPaulmanac(currentDate, solarYear){
     // helper
     //------------------------------------------------------
 
-    function add(icon,title,date){
+    function add(icon,title,date,extra={}){
 
         if(!date) return;
 
@@ -413,7 +413,8 @@ function getPaulmanac(currentDate, solarYear){
 
             icon,
             title,
-            date
+            date,
+            ...extra
 
         });
 
@@ -489,7 +490,11 @@ function getPaulmanac(currentDate, solarYear){
         add(
             event.icon,
             event.title,
-            event.date
+            event.date,
+            {
+                windowDays: event.windowDays,
+                visibleFromHome: event.visibleFromHome
+            }
         );
     
     }
