@@ -20,14 +20,15 @@ const BODY_STYLES = {
 export function moonEmoji(phaseAngle) {
     // astronomy-engine: 0° = Full, 180° = New
     if (phaseAngle == null) return "🌕";
-    if (phaseAngle < 22.5)  return "🌕"; // Full
-    if (phaseAngle < 67.5)  return "🌖"; // Waning Gibbous
-    if (phaseAngle < 112.5) return "🌗"; // Last Quarter
-    if (phaseAngle < 157.5) return "🌘"; // Waning Crescent
-    if (phaseAngle < 202.5) return "🌑"; // New
-    if (phaseAngle < 247.5) return "🌒"; // Waxing Crescent
-    if (phaseAngle < 292.5) return "🌓"; // First Quarter
-    if (phaseAngle < 337.5) return "🌔"; // Waxing Gibbous
+    // (mapping matches the Aug 26 "Update moon phase emojis" build)
+    if (phaseAngle < 22.5)  return "🌕";
+    if (phaseAngle < 67.5)  return "🌔";
+    if (phaseAngle < 112.5) return "🌓";
+    if (phaseAngle < 157.5) return "🌒";
+    if (phaseAngle < 202.5) return "🌑";
+    if (phaseAngle < 247.5) return "🌘";
+    if (phaseAngle < 292.5) return "🌗";
+    if (phaseAngle < 337.5) return "🌖";
     return "🌕";
 }
 
@@ -43,6 +44,205 @@ export function renderSkyVault(svg, scene) {
     drawCurves(svg, scene.curves ?? []);
     drawBodies(svg, scene.bodies ?? []);
     drawConjunctions(svg, scene.conjunctions ?? []);
+
+    // Keep the user's zoom/pan across re-renders, and wire gestures once.
+    enableVaultZoom(svg);
+    applyViewBox(svg);
+}
+
+/*──────────────────────────────────────────────────────────
+  Pinch-zoom / pan (sky map only)
+
+  - Two-finger pinch zooms the sky map, not the page.
+  - One-finger drag pans once zoomed in (at 1× the page scrolls
+    normally over the map).
+  - Ctrl+wheel / trackpad pinch zooms on desktop.
+  - Double-tap or the ⟲ button resets to the full sky.
+  - Body name labels fade in past LABEL_ZOOM_THRESHOLD only.
+──────────────────────────────────────────────────────────*/
+
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 3.5;
+export const LABEL_ZOOM_THRESHOLD = 1.6;
+
+function getView(svg) {
+    if (!svg._vaultView) svg._vaultView = { x: 0, y: 0, z: 1 };
+    return svg._vaultView;
+}
+
+function clampView(view) {
+    view.z = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, view.z));
+    const w = WIDTH / view.z;
+    const h = HEIGHT / view.z;
+    view.x = Math.min(WIDTH - w, Math.max(0, view.x));
+    view.y = Math.min(HEIGHT - h, Math.max(0, view.y));
+    return view;
+}
+
+function applyViewBox(svg) {
+    const view = clampView(getView(svg));
+    const w = WIDTH / view.z;
+    const h = HEIGHT / view.z;
+    svg.setAttribute("viewBox", `${view.x} ${view.y} ${w} ${h}`);
+
+    const zoomed = view.z > 1.01;
+    svg.classList.toggle("isZoomed", zoomed);
+    svg.classList.toggle("showLabels", view.z >= LABEL_ZOOM_THRESHOLD);
+    // At 1× let vertical page scroll pass through; when zoomed, own all gestures.
+    svg.style.touchAction = zoomed ? "none" : "pan-y";
+
+    // Keep body labels a steady ~12px on screen at any zoom
+    const rectWidth = svg.getBoundingClientRect().width || WIDTH;
+    const labelSize = (12 * w) / rectWidth;
+    for (const label of svg.querySelectorAll(".bodyLabel")) {
+        label.setAttribute("font-size", labelSize.toFixed(2));
+    }
+
+    const frame = svg.closest(".vaultFrame");
+    frame?.classList.toggle("isZoomed", zoomed);
+}
+
+export function resetVaultZoom(svg) {
+    svg._vaultView = { x: 0, y: 0, z: 1 };
+    applyViewBox(svg);
+}
+
+function clientToSvg(svg, clientX, clientY) {
+    const rect = svg.getBoundingClientRect();
+    const view = getView(svg);
+    const w = WIDTH / view.z;
+    const h = HEIGHT / view.z;
+    return {
+        x: view.x + ((clientX - rect.left) / rect.width) * w,
+        y: view.y + ((clientY - rect.top) / rect.height) * h
+    };
+}
+
+// Zoom to `z` keeping svg point `anchor` under client point (cx, cy)
+function zoomAround(svg, z, anchor, clientX, clientY) {
+    const rect = svg.getBoundingClientRect();
+    const view = getView(svg);
+    view.z = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, z));
+    const w = WIDTH / view.z;
+    const h = HEIGHT / view.z;
+    view.x = anchor.x - ((clientX - rect.left) / rect.width) * w;
+    view.y = anchor.y - ((clientY - rect.top) / rect.height) * h;
+    applyViewBox(svg);
+}
+
+function enableVaultZoom(svg) {
+    if (svg._vaultZoomWired) return;
+    svg._vaultZoomWired = true;
+
+    const pointers = new Map();
+    let pinch = null;   // { d0, z0, anchor }
+    let pan = null;     // { x, y, vx, vy }
+    let moved = 0;
+    let lastTap = 0;
+
+    const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+    const mid = (a, b) => ({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+
+    function startPinch() {
+        const [a, b] = [...pointers.values()];
+        const m = mid(a, b);
+        pinch = {
+            d0: Math.max(dist(a, b), 1),
+            z0: getView(svg).z,
+            anchor: clientToSvg(svg, m.x, m.y)
+        };
+        pan = null;
+    }
+
+    function startPan(p) {
+        const view = getView(svg);
+        pan = { x: p.x, y: p.y, vx: view.x, vy: view.y };
+    }
+
+    svg.addEventListener("pointerdown", e => {
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+        if (pointers.size === 1) {
+            moved = 0;
+            if (getView(svg).z > 1.01) startPan({ x: e.clientX, y: e.clientY });
+        } else if (pointers.size === 2) {
+            startPinch();
+        }
+    });
+
+    svg.addEventListener("pointermove", e => {
+        if (!pointers.has(e.pointerId)) return;
+        const prev = pointers.get(e.pointerId);
+        moved += Math.hypot(e.clientX - prev.x, e.clientY - prev.y);
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+        if (pinch && pointers.size >= 2) {
+            const [a, b] = [...pointers.values()];
+            const m = mid(a, b);
+            zoomAround(svg, pinch.z0 * (dist(a, b) / pinch.d0), pinch.anchor, m.x, m.y);
+            e.preventDefault();
+        } else if (pan && pointers.size === 1) {
+            const rect = svg.getBoundingClientRect();
+            const view = getView(svg);
+            view.x = pan.vx - ((e.clientX - pan.x) / rect.width) * (WIDTH / view.z);
+            view.y = pan.vy - ((e.clientY - pan.y) / rect.height) * (HEIGHT / view.z);
+            applyViewBox(svg);
+            e.preventDefault();
+        }
+    });
+
+    function endPointer(e) {
+        if (!pointers.has(e.pointerId)) return;
+        pointers.delete(e.pointerId);
+
+        if (pointers.size < 2) pinch = null;
+        if (pointers.size === 1 && getView(svg).z > 1.01) {
+            startPan([...pointers.values()][0]);
+        }
+        if (pointers.size === 0) {
+            pan = null;
+            if (e.type === "pointerup" && moved < 10) {
+                const now = Date.now();
+                if (now - lastTap < 300) {
+                    resetVaultZoom(svg);
+                    lastTap = 0;
+                } else {
+                    lastTap = now;
+                }
+            }
+        }
+    }
+
+    svg.addEventListener("pointerup", endPointer);
+    svg.addEventListener("pointercancel", endPointer);
+
+    // A drag/pinch shouldn't also open a body panel.
+    svg.addEventListener("click", e => {
+        if (moved >= 10) {
+            e.stopPropagation();
+            e.preventDefault();
+        }
+    }, true);
+
+    // Desktop: ctrl+wheel (and trackpad pinch, which sends ctrl+wheel)
+    svg.addEventListener("wheel", e => {
+        if (!e.ctrlKey) return;
+        e.preventDefault();
+        const anchor = clientToSvg(svg, e.clientX, e.clientY);
+        const z = getView(svg).z * Math.exp(-e.deltaY * 0.01);
+        zoomAround(svg, z, anchor, e.clientX, e.clientY);
+    }, { passive: false });
+
+    svg.addEventListener("dblclick", e => {
+        e.preventDefault();
+        resetVaultZoom(svg);
+    });
+
+    svg.closest(".vaultFrame")
+        ?.querySelector(".vaultReset")
+        ?.addEventListener("click", e => {
+            e.stopPropagation();
+            resetVaultZoom(svg);
+        });
 }
 
 function drawBackground(svg) {
@@ -144,6 +344,7 @@ function drawCurves(svg, curves) {
 
 function drawBodies(svg, bodies) {
     const placed = [];
+    const positions = {};
 
     for (const body of bodies) {
         const style = BODY_STYLES[body.name] ?? { sizePct: 0.05, glow: "#ffffff" };
@@ -204,47 +405,92 @@ function drawBodies(svg, bodies) {
 
         group.appendChild(symbol);
 
+        // Name label under the symbol — hidden at default zoom,
+        // fades in once zoomed past LABEL_ZOOM_THRESHOLD (see CSS).
+        const label = document.createElementNS(SVG_NS, "text");
+        label.setAttribute("class", "bodyLabel");
+        label.setAttribute("x", p.x);
+        label.setAttribute("y", y + size * 0.62 + 4);
+        label.setAttribute("text-anchor", "middle");
+        label.setAttribute("dominant-baseline", "hanging");
+        label.setAttribute("font-size", "13");
+        label.textContent = body.name;
+        group.appendChild(label);
+
         // Click / tap
         group.addEventListener("click", (e) => {
             e.stopPropagation();
             showBodyDetail(body, e.clientX, e.clientY);
         });
 
+        positions[body.name] = { x: p.x, y };
+
         svg.appendChild(group);
 
         placed.push({ x: p.x, y });
     }
+
+    svg._bodyPositions = positions;
 }
 
 function drawConjunctions(svg, conjunctions) {
+    const wide = window.innerWidth >= 768;
+    const positions = svg._bodyPositions || {};
+
     for (const conj of conjunctions) {
-        const p = projectToVault(conj.altitude, conj.azimuth, WIDTH, HEIGHT);
-        if (!p) continue;
+        const [a, b] = conj.bodies;
+        const pa = positions[a.name];
+        const pb = positions[b.name];
+
+        // Centre the ring between the drawn symbols when we have them
+        let cx, cy;
+        if (pa && pb) {
+            cx = (pa.x + pb.x) / 2;
+            cy = (pa.y + pb.y) / 2;
+        } else {
+            const p = projectToVault(conj.altitude, conj.azimuth, WIDTH, HEIGHT);
+            if (!p) continue;
+            cx = p.x;
+            cy = p.y;
+        }
 
         const group = document.createElementNS(SVG_NS, "g");
         group.style.cursor = "pointer";
 
+        // Faint outer ring
+        const outer = document.createElementNS(SVG_NS, "circle");
+        outer.setAttribute("cx", cx);
+        outer.setAttribute("cy", cy);
+        outer.setAttribute("r", 85);
+        outer.setAttribute("fill", "none");
+        outer.setAttribute("stroke", "#ffd978");
+        outer.setAttribute("stroke-width", "1.5");
+        outer.setAttribute("opacity", "0.22");
+        group.appendChild(outer);
+
         // Soft golden glow ring
         const ring = document.createElementNS(SVG_NS, "circle");
-        ring.setAttribute("cx", p.x);
-        ring.setAttribute("cy", p.y);
-        ring.setAttribute("r", 38);
+        ring.setAttribute("cx", cx);
+        ring.setAttribute("cy", cy);
+        ring.setAttribute("r", 70);
         ring.setAttribute("fill", "none");
         ring.setAttribute("stroke", "#ffd978");
         ring.setAttribute("stroke-width", "2");
-        ring.setAttribute("opacity", "0.55");
+        ring.setAttribute("opacity", "0.7");
+        ring.style.filter = "drop-shadow(0 0 8px rgba(255, 217, 120, 0.5))";
         group.appendChild(ring);
 
-        // Tiny label
-        const label = document.createElementNS(SVG_NS, "text");
-        label.setAttribute("x", p.x);
-        label.setAttribute("y", p.y + 48);
-        label.setAttribute("text-anchor", "middle");
-        label.setAttribute("font-size", "13");
-        label.setAttribute("fill", "#ffd978");
-        label.setAttribute("opacity", "0.85");
-        label.textContent = "Conjunction";
-        group.appendChild(label);
+        if (wide) {
+            const label = document.createElementNS(SVG_NS, "text");
+            label.setAttribute("x", cx);
+            label.setAttribute("y", cy + 95);
+            label.setAttribute("text-anchor", "middle");
+            label.setAttribute("font-size", "11");
+            label.setAttribute("fill", "#ffd978");
+            label.setAttribute("opacity", "0.8");
+            label.textContent = "Conjunction";
+            group.appendChild(label);
+        }
 
         // Click → special conjunction card
         group.addEventListener("click", (e) => {

@@ -404,7 +404,12 @@ function getPaulmanac(currentDate, solarYear){
 
         if(!date) return;
 
-        const d = new Date(date);
+        // "YYYY-MM-DD" must be read as a local day; new Date("2026-10-05")
+        // is UTC midnight, i.e. the evening before in the Americas, which
+        // made events vanish from the list on their own day.
+        const d = /^\d{4}-\d{2}-\d{2}$/.test(date)
+            ? new Date(...date.split("-").map((n, i) => i === 1 ? n - 1 : +n))
+            : new Date(date);
         d.setHours(0,0,0,0);
 
         if(d < today) return;
@@ -492,6 +497,7 @@ function getPaulmanac(currentDate, solarYear){
             event.title,
             event.date,
             {
+                type: event.type,
                 windowDays: event.windowDays,
                 visibleFromHome: event.visibleFromHome
             }

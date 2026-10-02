@@ -365,6 +365,18 @@ ASTRONOMY PANEL
 NAVIGATION
 ==================================================*/
 
+.past-event{
+
+    opacity:0.45;
+
+}
+
+.past-event .eventTitle{
+
+    text-decoration:line-through;
+
+}
+
 .navigationCard{
 
     display:flex;
@@ -861,17 +873,163 @@ SKY VAULT
 
 }
 
+.vaultFrame{
+
+    position:relative;
+
+    overflow:hidden;
+
+    margin-top:10px;
+
+    border-radius:18px;
+
+}
+
+.skyLocationChip{
+
+    position:absolute;
+
+    top:8px;
+
+    left:10px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:4px;
+
+    max-width:70%;
+
+    padding:4px 10px;
+
+    border-radius:999px;
+
+    background:rgba(8,17,31,0.62);
+
+    border:1px solid rgba(159,179,217,0.25);
+
+    backdrop-filter:blur(6px);
+
+    pointer-events:none;
+
+    z-index:2;
+
+}
+
+.skyLocationPin{
+
+    font-size:0.8rem;
+
+}
+
 .skyLocation{
 
-    font-size:0.92rem;
+    font-size:0.85rem;
 
     font-weight:500;
 
     letter-spacing:0.02em;
 
-    color:#9fb3d9;
+    color:#cfdcf5;
 
-    opacity:0.95;
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+}
+
+.vaultReset{
+
+    position:absolute;
+
+    top:8px;
+
+    right:10px;
+
+    width:32px;
+
+    height:32px;
+
+    border-radius:50%;
+
+    border:1px solid rgba(159,179,217,0.3);
+
+    background:rgba(8,17,31,0.62);
+
+    color:#cfdcf5;
+
+    font-size:1rem;
+
+    line-height:1;
+
+    padding:0;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    box-shadow:none;
+
+    cursor:pointer;
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:opacity .25s ease;
+
+    z-index:2;
+
+}
+
+.vaultFrame.isZoomed .vaultReset{
+
+    opacity:1;
+
+    pointer-events:auto;
+
+}
+
+#vault .bodyLabel{
+
+    fill:#dfe8fb;
+
+    font-family:Inter, sans-serif;
+
+    font-weight:500;
+
+    letter-spacing:0.03em;
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:opacity .35s ease;
+
+}
+
+#vault.showLabels .bodyLabel{
+
+    opacity:0.92;
+
+}
+
+.vaultHint{
+
+    margin-top:6px;
+
+    font-size:0.72rem;
+
+    color:#7f93bb;
+
+    text-align:center;
+
+    opacity:0.8;
 
 }
 
@@ -900,8 +1058,6 @@ SKY VAULT
     height:auto;
 
     display:block;
-
-    margin-top:10px;
 
     border-radius:18px;
 

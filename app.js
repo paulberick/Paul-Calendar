@@ -7,7 +7,13 @@ from "./engine/skyToday.js";
 import { buildSkyScene }
 from "./engine/skyScene.js";
 
+import { getSkyPosition }
+from "./engine/skyGeometry.js";
+
 import { renderSkyVault, moonEmoji } from "./ui/components/SkyVault.js";
+
+import { formatOverheadCompanion }
+from "./engine/overheadCopy.js";
 
 /*==================================================
 CURRENT DATE
@@ -97,157 +103,16 @@ function formatCountdown(targetDate){
 
 
 /*==================================================
-OVERHEAD COMPANION COPY
-==================================================*/
-
-const KNOWN_BODIES = [
-    "Sun", "Moon", "Mercury", "Venus",
-    "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"
-];
-
-function displayBodyName(name) {
-    return name === "Moon" ? "the Moon" : name;
-}
-
-function formatBodyList(bodies) {
-    const names = bodies.map(displayBodyName);
-    if (names.length === 0) return "";
-    if (names.length === 1) return names[0];
-    if (names.length === 2) return `${names[0]} and ${names[1]}`;
-    return `${names.slice(0, -1).join(", ")}, and ${names[names.length - 1]}`;
-}
-
-function extractBodiesFromTitle(title) {
-    if (!title) return [];
-
-    let cleaned = String(title)
-        .replace(/\s+Peak$/i, "")
-        .replace(/^Triple:\s*/i, "")
-        .trim();
-
-    // Normalize common conjunction separators into a split delimiter
-    cleaned = cleaned
-        .replace(/\s+meets\s+/gi, " + ")
-        .replace(/\s+with\s+/gi, " + ")
-        .replace(/\s*•\s*/g, " + ");
-
-    const parts = cleaned.split(/\s*\+\s*/).map(p => p.trim()).filter(Boolean);
-    const found = [];
-
-    for (const part of parts) {
-        const match = KNOWN_BODIES.find(
-            body => body.toLowerCase() === part.toLowerCase()
-        );
-        if (match && !found.includes(match)) found.push(match);
-    }
-
-    // Also catch "Moon meets Jupiter" if split missed a single token phrase
-    if (found.length === 0) {
-        for (const body of KNOWN_BODIES) {
-            const re = new RegExp(`\\b${body}\\b`, "i");
-            if (re.test(title) && !found.includes(body)) found.push(body);
-        }
-    }
-
-    return found;
-}
-
-function cleanEventLabel(title) {
-    return String(title)
-        .replace(/\s+Peak$/i, "")
-        .replace(/^Triple:\s*/i, "")
-        .trim();
-}
-
-function isConjunctionLikeTitle(title) {
-    const bodies = extractBodiesFromTitle(title);
-    if (bodies.length >= 2) return true;
-    return /\bmeets\b|\+|with|•/i.test(title);
-}
-
-/**
- * Build natural overhead copy from nearby Paulmanac events.
- * Dedupes bodies across overlapping conjunction titles so we never
- * produce mashups like "Jupiter + Mars + Moon and Moon + Jupiter".
- */
-export function formatOverheadCompanion(paul, date = new Date()) {
-    const today = new Date(date);
-    today.setHours(0, 0, 0, 0);
-
-    const nearby = (paul?.paulmanac || []).filter(event => {
-        const d = new Date(event.date);
-        d.setHours(0, 0, 0, 0);
-        const dayDelta = Math.round((d - today) / 86400000);
-        const windowDays = event.windowDays ?? 1;
-        return dayDelta >= -windowDays && dayDelta <= windowDays;
-    });
-
-    if (nearby.length === 0) return null;
-
-    const bodies = [];
-    const namedEvents = [];
-
-    for (const event of nearby) {
-        if (isConjunctionLikeTitle(event.title)) {
-            for (const body of extractBodiesFromTitle(event.title)) {
-                if (!bodies.includes(body)) bodies.push(body);
-            }
-        } else {
-            const label = cleanEventLabel(event.title);
-            if (label && !namedEvents.includes(label)) namedEvents.push(label);
-        }
-    }
-
-    const clauses = [];
-
-    if (bodies.length >= 2) {
-        clauses.push(`${formatBodyList(bodies)} share the sky`);
-    } else if (bodies.length === 1) {
-        clauses.push(`${formatBodyList(bodies)} is brightening the sky tonight`);
-    }
-
-    for (const label of namedEvents) {
-        // Meteor showers and named sky events
-        if (/eclipse/i.test(label)) {
-            clauses.push(`the ${label} is underway`);
-        } else {
-            clauses.push(`the ${label} are active overhead`);
-        }
-    }
-
-    if (clauses.length === 0) return null;
-
-    let sentence = clauses[0];
-    if (clauses.length === 2) {
-        sentence = `${clauses[0]}, and ${clauses[1]}`;
-    } else if (clauses.length > 2) {
-        sentence = `${clauses.slice(0, -1).join("; ")}; and ${clauses[clauses.length - 1]}`;
-    }
-
-    // Visibility hint (optional, from curated data)
-    const visibility = nearby
-        .map(e => e.visibleFromHome)
-        .filter(v => v !== undefined);
-
-    if (visibility.length > 0) {
-        const anyVisible = visibility.some(v => v === true);
-        const allVisible = visibility.every(v => v === true);
-        if (allVisible) sentence += " — look up";
-        else if (anyVisible) sentence += " — partly visible from here";
-        else sentence += " — not really visible from here";
-    }
-
-    // Capitalize first letter; keep "the Moon" mid-sentence as-is
-    sentence = sentence.charAt(0).toUpperCase() + sentence.slice(1);
-    return sentence.endsWith(".") ? sentence : `${sentence}.`;
-}
-
-/*==================================================
 SKY MAP LOCATION LABEL
+
+Shown as a chip ON the sky map so you can trust the render
+is the sky over where you are. The label always describes the
+coordinates the sky render actually used.
 ==================================================*/
 
 const LOCATION_CACHE_KEY = "paulCalendar.skyLocation";
 const DEFAULT_COORDS = { latitude: 39.9612, longitude: -82.9988 };
+const DEFAULT_CITY = "Columbus, OH";
 
 function formatCoordLabel(lat, lon) {
     const ns = lat >= 0 ? "N" : "S";
@@ -255,34 +120,33 @@ function formatCoordLabel(lat, lon) {
     return `${Math.abs(lat).toFixed(2)}°${ns}, ${Math.abs(lon).toFixed(2)}°${ew}`;
 }
 
-function readCachedCity() {
+// Cached city is only reused if it was resolved for roughly these coords
+function readCachedCity(lat, lon) {
     try {
-        const raw = localStorage.getItem(LOCATION_CACHE_KEY);
-        if (!raw) return null;
-        const parsed = JSON.parse(raw);
-        return parsed?.label || null;
+        const parsed = JSON.parse(localStorage.getItem(LOCATION_CACHE_KEY) || "null");
+        if (!parsed?.label) return null;
+        if (lat == null || lon == null) return null;
+        const close =
+            Math.abs(parsed.latitude - lat) < 0.15 &&
+            Math.abs(parsed.longitude - lon) < 0.15;
+        return close ? parsed.label : null;
     } catch {
         return null;
     }
 }
 
-function writeCachedCity(label, coords) {
+function writeCachedCity(label, lat, lon) {
     try {
         localStorage.setItem(
             LOCATION_CACHE_KEY,
-            JSON.stringify({
-                label,
-                latitude: coords?.latitude,
-                longitude: coords?.longitude,
-                savedAt: Date.now()
-            })
+            JSON.stringify({ label, latitude: lat, longitude: lon, savedAt: Date.now() })
         );
     } catch {
         /* ignore quota / private mode */
     }
 }
 
-async function reverseGeocodeCity(latitude, longitude) {
+export async function reverseGeocodeCity(latitude, longitude) {
     const url =
         "https://api.bigdatacloud.net/data/reverse-geocode-client" +
         `?latitude=${encodeURIComponent(latitude)}` +
@@ -293,75 +157,61 @@ async function reverseGeocodeCity(latitude, longitude) {
     if (!response.ok) throw new Error(`geocode ${response.status}`);
 
     const data = await response.json();
-    const city =
-        data.city ||
-        data.locality ||
-        data.localityInfo?.administrative?.[0]?.name ||
-        null;
-    const region =
-        data.principalSubdivisionCode?.replace(/^[A-Z]+-/, "") ||
-        data.principalSubdivision ||
-        null;
+    const city = data.city || data.locality || null;
+    const sub = String(data.principalSubdivisionCode || "").replace(/^[A-Z]+-/, "");
+    // "Columbus, OH" in the US/Canada/Australia, "London, GB" elsewhere
+    const region = ["US", "CA", "AU"].includes(data.countryCode) && /^[A-Z]{2,3}$/.test(sub)
+        ? sub
+        : data.countryCode || null;
 
-    if (city && region && region.length <= 12 && region !== city) {
-        return `${city}, ${region}`;
-    }
+    if (city && region) return `${city}, ${region}`;
     if (city) return city;
     if (data.countryName) return data.countryName;
     return null;
 }
 
-function setSkyLocationLabel(text) {
+function setSkyLocationLabel(text, title = text) {
     const el = document.getElementById("skyLocation");
-    if (el) el.textContent = text;
+    if (!el) return;
+    el.textContent = text;
+    el.title = title;
 }
 
-/**
- * Resolve a user-facing location label for the sky map.
- * Uses browser geolocation result when available, BigDataCloud reverse
- * geocode (no API key; GH Pages friendly), then last-known / coords.
- */
+let lastLocationKey = "";
+
 async function updateSkyLocationLabel(position, geoOk) {
-    setSkyLocationLabel("Locating…");
+    const lat = position?.coords?.latitude;
+    const lon = position?.coords?.longitude;
 
-    const coords = position?.coords;
-    const lat = coords?.latitude;
-    const lon = coords?.longitude;
+    if (!geoOk || lat == null || lon == null) {
+        // Render fell back to the default coordinates — say so honestly.
+        setSkyLocationLabel(
+            `${DEFAULT_CITY} (default)`,
+            "Location is off — showing the sky over Columbus, OH. Allow location to see your own sky."
+        );
+        return;
+    }
 
-    if (geoOk && lat != null && lon != null) {
-        try {
-            const city = await reverseGeocodeCity(lat, lon);
-            if (city) {
-                writeCachedCity(city, { latitude: lat, longitude: lon });
-                setSkyLocationLabel(city);
-                return;
-            }
-        } catch (err) {
-            console.warn("Reverse geocode failed:", err);
-        }
+    const key = `${lat.toFixed(2)},${lon.toFixed(2)}`;
+    if (key === lastLocationKey) return;   // already resolved for these coords
+    lastLocationKey = key;
 
-        const cached = readCachedCity();
-        if (cached) {
-            setSkyLocationLabel(cached);
+    const cached = readCachedCity(lat, lon);
+    setSkyLocationLabel(cached || "Locating…");
+
+    try {
+        const city = await reverseGeocodeCity(lat, lon);
+        if (city) {
+            writeCachedCity(city, lat, lon);
+            setSkyLocationLabel(city, `Sky over ${city} (${formatCoordLabel(lat, lon)})`);
             return;
         }
-
-        setSkyLocationLabel(formatCoordLabel(lat, lon));
-        return;
+    } catch (err) {
+        console.warn("Reverse geocode failed:", err);
+        lastLocationKey = "";   // retry on next refresh
     }
 
-    const cached = readCachedCity();
-    if (cached) {
-        setSkyLocationLabel(cached);
-        return;
-    }
-
-    if (lat != null && lon != null) {
-        setSkyLocationLabel(formatCoordLabel(lat, lon));
-        return;
-    }
-
-    setSkyLocationLabel("Location unavailable");
+    if (!cached) setSkyLocationLabel(formatCoordLabel(lat, lon));
 }
 
 
@@ -513,24 +363,34 @@ console.log("Golden Evening:",
         { icon: "🌘", label: "Moonset",     time: sky.moonset }
     ];
     
-    function parseSkyTime(timeString) {
-    
-        if (!timeString || timeString === "—")
-            return Number.MAX_SAFE_INTEGER;
-    
-        const d = new Date(`2000-01-01 ${timeString}`);
-    
-        return d.getTime();
+    // Show the next five rise/set events from now, rolling into tomorrow
+    function skyTimeOn(timeString, day) {
+        if (!timeString || timeString === "—") return null;
+        const d = new Date(`${day.toDateString()} ${timeString}`);
+        return isNaN(d.getTime()) ? null : d;
     }
-    
-    skyEvents.sort((a, b) => parseSkyTime(a.time) - parseSkyTime(b.time));
-    
+
+    const now = new Date();
+    const viewDay = new Date(currentDate);
+    const nextDay = new Date(viewDay);
+    nextDay.setDate(nextDay.getDate() + 1);
+
+    const upcomingToday = skyEvents
+        .map(e => ({ ...e, when: skyTimeOn(e.time, viewDay), dayLabel: null }))
+        .filter(e => e.when && e.when > now);
+    const upcomingTomorrow = skyEvents
+        .map(e => ({ ...e, when: skyTimeOn(e.time, nextDay), dayLabel: "tomorrow" }))
+        .filter(e => e.when);
+    const nextSkyEvents = [...upcomingToday, ...upcomingTomorrow]
+        .sort((a, b) => a.when - b.when)
+        .slice(0, 5);
+
     document.getElementById("todaySkyEvents").innerHTML =
-        skyEvents.map(event => `
+        nextSkyEvents.map(event => `
             <div class="event">
                 <div>
                     <div class="eventTitle">
-                        ${event.icon} ${event.label}
+                        ${event.icon} ${event.label}${event.dayLabel ? ` <span style="opacity:0.6;font-size:0.8em">(${event.dayLabel})</span>` : ""}
                     </div>
                     <div>${event.time}</div>
                 </div>
@@ -673,12 +533,14 @@ Grok's Moon Thing!
 ------------------------------------------*/
 
 
-// Find the Moon in the current sky scene
-const moonBody = scene.bodies.find(b => b.name === "Moon");
+// Moon phase even when the Moon is below the horizon
+const moonBody = getSkyPosition("Moon", currentDate, observer);
 
 const moonIconEl = document.getElementById("moonIcon");
 if (moonIconEl && moonBody) {
     moonIconEl.textContent = moonEmoji(moonBody.phaseAngle);
+    moonIconEl.title =
+        `phaseAngle: ${moonBody.phaseAngle?.toFixed(1)}° | illum: ${moonBody.illumination}%`;
 } else if (moonIconEl) {
     moonIconEl.textContent = "🌕"; // fallback
 }
@@ -1145,6 +1007,10 @@ document.getElementById("nextPage").onclick = () => {
 
         fadeBook();
 
+    } else {
+
+        aboutModal.classList.add("hidden");
+
     }
 
 };
@@ -1261,14 +1127,40 @@ Notifications
 INITIALIZE
 ==================================================*/
 
+//--------------------------------------------------
+// Keep the sky live: redraw every minute, and snap
+// back to "now" every 90s / when the app is reopened.
+//--------------------------------------------------
+
+setInterval(() => {
+    if (!document.hidden) updateDisplay();
+}, 60000);
+
+currentDate = new Date();
 updateDisplay();
 
+setInterval(() => {
+    if (!document.hidden) {
+        currentDate = new Date();
+        updateDisplay();
+    }
+}, 90000);
+
+document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+        currentDate = new Date();
+        updateDisplay();
+    }
+});
+
+//--------------------------------------------------
+// Service worker: retire any old cache-first worker so
+// phones never get stuck on a stale build.
+//--------------------------------------------------
 
 if ("serviceWorker" in navigator) {
-
     navigator.serviceWorker
         .register("./service-worker.js")
         .catch(console.error);
-
 }
 

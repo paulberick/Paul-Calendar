@@ -175,26 +175,30 @@ Night Two
 
      <div class="skyVaultHeader">
 
-     <h2>
-     
-     Sky Vault
-     
-     </h2>
-
-     <div id="skyLocation" class="skyLocation" aria-live="polite">
-     
-     Locating…
-     
-     </div>
+     <h2>Sky Vault</h2>
 
      </div>
-     
-     <svg
-         id="vault"
-         viewBox="0 0 900 420">
-     
-     </svg>
-     
+
+     <div class="vaultFrame">
+
+         <svg
+             id="vault"
+             viewBox="0 0 900 420"
+             aria-label="Live sky map">
+
+         </svg>
+
+         <div class="skyLocationChip" aria-live="polite">
+             <span class="skyLocationPin" aria-hidden="true">📍</span>
+             <span id="skyLocation" class="skyLocation">Locating…</span>
+         </div>
+
+         <button type="button" class="vaultReset" aria-label="Reset sky zoom" title="Reset zoom">⟲</button>
+
+     </div>
+
+     <div class="vaultHint">Pinch to zoom · double-tap to reset</div>
+
      </section>
 
 
