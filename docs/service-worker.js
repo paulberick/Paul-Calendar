@@ -1,41 +1,47 @@
-const CACHE = "paulmanac-v1";
+// Paulmanac service worker
+//
+// Network-first: always try to fetch the latest build so phones never
+// get stuck on an old version; fall back to the cache only when offline.
+// Bump CACHE whenever the caching strategy changes — old caches are
+// deleted on activate.
 
-const FILES = [
-    "./",
-    "./index.html",
-    "./styles.css",
-    "./app.js",
-    "./manifest.json",
+const CACHE = "paulmanac-v2";
 
-    "./icons/icon-192.png",
-    "./icons/icon-512.png",
+self.addEventListener("install", () => {
+    self.skipWaiting();
+});
 
-    "./engine/calendarEngine.js",
-    "./engine/calendarDatabase.js",
-    "./engine/constants.js",
-    "./engine/dateUtils.js",
-    "./engine/skyEvents.js",
-    "./engine/skyToday.js"
-];
-
-self.addEventListener("install", event => {
-
+self.addEventListener("activate", event => {
     event.waitUntil(
-
-        caches.open(CACHE)
-            .then(cache => cache.addAll(FILES))
-
+        caches.keys()
+            .then(keys => Promise.all(
+                keys.filter(k => k !== CACHE).map(k => caches.delete(k))
+            ))
+            .then(() => self.clients.claim())
     );
-
 });
 
 self.addEventListener("fetch", event => {
+    const req = event.request;
+    if (req.method !== "GET") return;
+
+    const url = new URL(req.url);
+    // Only handle our own files (not geocoding / fonts / other APIs)
+    if (url.origin !== self.location.origin) return;
 
     event.respondWith(
-
-        caches.match(event.request)
-            .then(response => response || fetch(event.request))
-
+        fetch(req)
+            .then(response => {
+                if (response.ok) {
+                    const copy = response.clone();
+                    caches.open(CACHE).then(cache => cache.put(req, copy));
+                }
+                return response;
+            })
+            .catch(() =>
+                caches.match(req).then(hit =>
+                    hit || (req.mode === "navigate" ? caches.match("./index.html") : Response.error())
+                )
+            )
     );
-
 });

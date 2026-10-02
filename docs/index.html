@@ -11,7 +11,7 @@
 <title>Paul's Calendar</title>
 
 <link rel="manifest" href="/Paul-Calendar/manifest.json">
-
+
 
 <link rel="preconnect"
       href="https://fonts.googleapis.com">
@@ -23,8 +23,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet">
 
-  <script type="module" crossorigin src="/Paul-Calendar/assets/index-B5azlMbd.js"></script>
-  <link rel="stylesheet" crossorigin href="/Paul-Calendar/assets/index-4jMc3iTQ.css">
+  <script type="module" crossorigin src="/Paul-Calendar/assets/index-BQ1E-B-3.js"></script>
+  <link rel="stylesheet" crossorigin href="/Paul-Calendar/assets/index-C9VbX_QU.css">
 </head>
 
 <body>
@@ -172,18 +172,33 @@ Night Two
 
 <section class="card skyVaultCard">
 
-     <h2>
-     
-     Sky Vault
-     
-     </h2>
-     
-     <svg
-         id="vault"
-         viewBox="0 0 900 420">
-     
-     </svg>
-     
+     <div class="skyVaultHeader">
+
+     <h2>Sky Vault</h2>
+
+     </div>
+
+     <div class="vaultFrame">
+
+         <svg
+             id="vault"
+             viewBox="0 0 900 420"
+             aria-label="Live sky map">
+
+         </svg>
+
+         <div class="skyLocationChip" aria-live="polite">
+             <span class="skyLocationPin" aria-hidden="true">📍</span>
+             <span id="skyLocation" class="skyLocation">Locating…</span>
+         </div>
+
+     </div>
+
+     <div class="vaultControls">
+         <div class="vaultHint">Pinch to zoom · double-tap to reset</div>
+         <button type="button" class="vaultReset" aria-label="Reset sky zoom" title="Reset zoom">⟲</button>
+     </div>
+
      </section>
 
 
@@ -314,7 +329,7 @@ Page 1 of 8
 </div>
 
 </div>
-
+
 
 <!-- ======================================= -->
 <!-- FUTURE MODALS -->

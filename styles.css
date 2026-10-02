@@ -365,6 +365,18 @@ ASTRONOMY PANEL
 NAVIGATION
 ==================================================*/
 
+.past-event{
+
+    opacity:0.45;
+
+}
+
+.past-event .eventTitle{
+
+    text-decoration:line-through;
+
+}
+
 .navigationCard{
 
     display:flex;
@@ -839,6 +851,227 @@ SKY VAULT
 
 }
 
+
+
+.skyVaultHeader{
+
+    display:flex;
+
+    align-items:baseline;
+
+    justify-content:space-between;
+
+    gap:12px;
+
+    flex-wrap:wrap;
+
+}
+
+.skyVaultHeader h2{
+
+    margin:0;
+
+}
+
+.vaultFrame{
+
+    position:relative;
+
+    overflow:hidden;
+
+    margin-top:10px;
+
+    border-radius:18px;
+
+}
+
+.skyLocationChip{
+
+    position:absolute;
+
+    top:8px;
+
+    left:10px;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:4px;
+
+    max-width:70%;
+
+    padding:4px 10px;
+
+    border-radius:999px;
+
+    background:rgba(8,17,31,0.62);
+
+    border:1px solid rgba(159,179,217,0.25);
+
+    backdrop-filter:blur(6px);
+
+    pointer-events:none;
+
+    z-index:2;
+
+}
+
+.skyLocationPin{
+
+    font-size:0.8rem;
+
+}
+
+.skyLocation{
+
+    font-size:0.85rem;
+
+    font-weight:500;
+
+    letter-spacing:0.02em;
+
+    color:#cfdcf5;
+
+    white-space:nowrap;
+
+    overflow:hidden;
+
+    text-overflow:ellipsis;
+
+}
+
+.vaultControls{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    position:relative;
+
+    margin-top:6px;
+
+    min-height:32px;
+
+}
+
+.vaultReset{
+
+    position:absolute;
+
+    right:0;
+
+    top:50%;
+
+    transform:translateY(-50%);
+
+    width:32px;
+
+    height:32px;
+
+    border-radius:50%;
+
+    border:1px solid rgba(159,179,217,0.3);
+
+    background:rgba(8,17,31,0.62);
+
+    color:#cfdcf5;
+
+    font-size:1rem;
+
+    line-height:1;
+
+    padding:0;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    box-shadow:none;
+
+    cursor:pointer;
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:opacity .25s ease;
+
+}
+
+.vaultReset:hover,
+.vaultReset:active{
+
+    transform:translateY(-50%);
+
+}
+
+.skyVaultCard.isZoomed .vaultReset{
+
+    opacity:1;
+
+    pointer-events:auto;
+
+}
+
+#vault .bodyLabel{
+
+    fill:#dfe8fb;
+
+    font-family:Inter, sans-serif;
+
+    font-weight:500;
+
+    letter-spacing:0.03em;
+
+    opacity:0;
+
+    pointer-events:none;
+
+    transition:opacity .35s ease;
+
+}
+
+#vault.showLabels .bodyLabel{
+
+    opacity:0.92;
+
+}
+
+.vaultHint{
+
+    font-size:0.72rem;
+
+    color:#7f93bb;
+
+    text-align:center;
+
+    opacity:0.8;
+
+}
+
+.overheadBlurb{
+
+    font-size:0.82rem;
+
+    opacity:0.85;
+
+    margin-top:6px;
+
+    color:#c8d4ee;
+
+    line-height:1.35;
+
+    font-style:italic;
+
+    font-weight:400;
+
+}
+
 #vault{
 
     width:100%;
@@ -846,8 +1079,6 @@ SKY VAULT
     height:auto;
 
     display:block;
-
-    margin-top:10px;
 
     border-radius:18px;
 
