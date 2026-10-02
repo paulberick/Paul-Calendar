@@ -74,6 +74,7 @@ export function buildSkyScene(time, observer) {
             magnitude: sky.magnitude,
             phase: sky.phase,
             phaseAngle: sky.phaseAngle,
+            moonPhase: sky.moonPhase,
             phaseName: sky.phaseName,
             illumination: sky.illumination,
             zodiac: sky.zodiac,
