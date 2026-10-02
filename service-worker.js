@@ -5,7 +5,7 @@
 // Bump CACHE whenever the caching strategy changes — old caches are
 // deleted on activate.
 
-const CACHE = "paulmanac-v2";
+const CACHE = "paulmanac-v3";
 
 self.addEventListener("install", () => {
     self.skipWaiting();

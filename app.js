@@ -538,9 +538,9 @@ const moonBody = getSkyPosition("Moon", currentDate, observer);
 
 const moonIconEl = document.getElementById("moonIcon");
 if (moonIconEl && moonBody) {
-    moonIconEl.textContent = moonEmoji(moonBody.phaseAngle);
+    moonIconEl.textContent = moonEmoji(moonBody.moonPhase);
     moonIconEl.title =
-        `phaseAngle: ${moonBody.phaseAngle?.toFixed(1)}° | illum: ${moonBody.illumination}%`;
+        `${moonBody.phaseName ?? "Moon"} | elongation: ${moonBody.moonPhase?.toFixed(1)}° | illum: ${moonBody.illumination}%`;
 } else if (moonIconEl) {
     moonIconEl.textContent = "🌕"; // fallback
 }

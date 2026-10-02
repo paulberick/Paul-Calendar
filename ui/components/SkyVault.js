@@ -1,4 +1,5 @@
 import { projectToVault } from "./SkyProjection.js";
+import { moonPhaseIndex } from "../../engine/skyGeometry.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -16,20 +17,14 @@ const BODY_STYLES = {
     Saturn:  { symbol: "♄", sizePct: 0.068, glow: "#ffe5a8" }
 };
 
-// Nice Unicode moons that match real phase
-export function moonEmoji(phaseAngle) {
-    // astronomy-engine: 0° = Full, 180° = New
-    if (phaseAngle == null) return "🌕";
-    // (mapping matches the Aug 26 "Update moon phase emojis" build)
-    if (phaseAngle < 22.5)  return "🌕";
-    if (phaseAngle < 67.5)  return "🌔";
-    if (phaseAngle < 112.5) return "🌓";
-    if (phaseAngle < 157.5) return "🌒";
-    if (phaseAngle < 202.5) return "🌑";
-    if (phaseAngle < 247.5) return "🌘";
-    if (phaseAngle < 292.5) return "🌗";
-    if (phaseAngle < 337.5) return "🌖";
-    return "🌕";
+// Northern-hemisphere Moon emoji from ecliptic elongation
+// (Astronomy.MoonPhase): 0 = new, 90 = first quarter (right half lit),
+// 180 = full, 270 = last quarter (left half lit). 45° bins.
+const MOON_EMOJI = ["🌑", "🌒", "🌓", "🌔", "🌕", "🌖", "🌗", "🌘"];
+
+export function moonEmoji(moonPhase) {
+    if (moonPhase == null || Number.isNaN(moonPhase)) return "🌕";
+    return MOON_EMOJI[moonPhaseIndex(moonPhase)];
 }
 
 
@@ -398,7 +393,7 @@ function drawBodies(svg, bodies) {
         symbol.style.pointerEvents = "none"; // let the group handle clicks
 
         if (body.name === "Moon") {
-            symbol.textContent = moonEmoji(body.phaseAngle);
+            symbol.textContent = moonEmoji(body.moonPhase);
         } else {
             symbol.textContent = style.symbol ?? body.symbol ?? "?";
         }

@@ -34,7 +34,8 @@ export function getSkyPosition(body, time, observer) {
         aboveHorizon: hor.altitude > 0,
         magnitude: null,
         phase: null,           // 0–1 illuminated fraction
-        phaseAngle: null,      // 0 = new, 180 = full
+        phaseAngle: null,      // Sun–body–Earth angle: 0 = full, 180 = new (no waxing/waning info)
+        moonPhase: null,       // Moon only: ecliptic elongation 0–360 (0 new, 90 first qtr, 180 full, 270 last qtr)
         phaseName: null,
         illumination: null,    // percentage
         zodiac: sign,
@@ -51,7 +52,8 @@ export function getSkyPosition(body, time, observer) {
         result.illumination  = Math.round(illum.phase_fraction * 100);
     
         if (body === "Moon") {
-            result.phaseName = phaseNameFromAngle(illum.phase_angle);
+            result.moonPhase = Astronomy.MoonPhase(astroTime);
+            result.phaseName = moonPhaseName(result.moonPhase);
         }
     } catch (e) {
         // some bodies don't support Illumination
@@ -60,15 +62,20 @@ export function getSkyPosition(body, time, observer) {
     return result;
 }
 
-function phaseNameFromAngle(angle) {
-    // astronomy-engine: 0° = Full, 180° = New
-    if (angle < 22.5)  return "Full";
-    if (angle < 67.5)  return "Waning Gibbous";
-    if (angle < 112.5) return "Last Quarter";
-    if (angle < 157.5) return "Waning Crescent";
-    if (angle < 202.5) return "New";
-    if (angle < 247.5) return "Waxing Crescent";
-    if (angle < 292.5) return "First Quarter";
-    if (angle < 337.5) return "Waxing Gibbous";
-    return "Full";
+// Moon phase name from ecliptic elongation (Astronomy.MoonPhase):
+// 0 = new, 90 = first quarter, 180 = full, 270 = last quarter.
+// 45° bins centred on each principal/intermediate phase.
+const PHASE_NAMES = [
+    "New", "Waxing Crescent", "First Quarter", "Waxing Gibbous",
+    "Full", "Waning Gibbous", "Last Quarter", "Waning Crescent"
+];
+
+export function moonPhaseIndex(elongation) {
+    const e = ((elongation % 360) + 360) % 360;
+    return Math.floor((e + 22.5) / 45) % 8;
+}
+
+export function moonPhaseName(elongation) {
+    if (elongation == null || Number.isNaN(elongation)) return null;
+    return PHASE_NAMES[moonPhaseIndex(elongation)];
 }
