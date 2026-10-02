@@ -98,8 +98,8 @@ function applyViewBox(svg) {
         label.setAttribute("font-size", labelSize.toFixed(2));
     }
 
-    const frame = svg.closest(".vaultFrame");
-    frame?.classList.toggle("isZoomed", zoomed);
+    const card = svg.closest(".skyVaultCard") || svg.closest(".vaultFrame");
+    card?.classList.toggle("isZoomed", zoomed);
 }
 
 export function resetVaultZoom(svg) {
@@ -237,7 +237,7 @@ function enableVaultZoom(svg) {
         resetVaultZoom(svg);
     });
 
-    svg.closest(".vaultFrame")
+    (svg.closest(".skyVaultCard") || svg.closest(".vaultFrame"))
         ?.querySelector(".vaultReset")
         ?.addEventListener("click", e => {
             e.stopPropagation();

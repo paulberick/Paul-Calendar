@@ -941,13 +941,31 @@ SKY VAULT
 
 }
 
+.vaultControls{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    position:relative;
+
+    margin-top:6px;
+
+    min-height:32px;
+
+}
+
 .vaultReset{
 
     position:absolute;
 
-    top:8px;
+    right:0;
 
-    right:10px;
+    top:50%;
+
+    transform:translateY(-50%);
 
     width:32px;
 
@@ -983,11 +1001,16 @@ SKY VAULT
 
     transition:opacity .25s ease;
 
-    z-index:2;
+}
+
+.vaultReset:hover,
+.vaultReset:active{
+
+    transform:translateY(-50%);
 
 }
 
-.vaultFrame.isZoomed .vaultReset{
+.skyVaultCard.isZoomed .vaultReset{
 
     opacity:1;
 
@@ -1020,8 +1043,6 @@ SKY VAULT
 }
 
 .vaultHint{
-
-    margin-top:6px;
 
     font-size:0.72rem;
 
