@@ -389,12 +389,105 @@ return {
 // PAULMANAC
 //==========================================================
 
+function parseLocalDay(date){
+
+    if(!date) return null;
+
+    if(/^\d{4}-\d{2}-\d{2}$/.test(date)){
+
+        return new Date(...date.split("-").map((n, i) => i === 1 ? n - 1 : +n));
+
+    }
+
+    const d = new Date(date);
+    d.setHours(0,0,0,0);
+    return d;
+
+}
+
+function isSolarEvent(event){
+
+    const type = String(event.type || "").toLowerCase();
+    const title = String(event.title || event.type || "");
+
+    if(type === "lunar-eclipse" || /lunar\s+eclipse/i.test(title)){
+        return false;
+    }
+
+    if(type === "solar-eclipse" || type === "solstice" || type === "equinox"){
+        return true;
+    }
+
+    if(/solar\s+eclipse/i.test(title)) return true;
+    if(/\b(solstice|equinox)\b/i.test(title)) return true;
+
+    return false;
+
+}
+
+function solarIconFor(title){
+
+    const t = String(title || "").toLowerCase();
+
+    if(t.includes("eclipse")) return "🌞";
+    if(t.includes("spring") && t.includes("equinox")) return "🌸";
+    if((t.includes("autumn") || t.includes("fall")) && t.includes("equinox")) return "🍂";
+    if(t.includes("summer") && t.includes("solstice")) return "☀️";
+    if(t.includes("winter") && t.includes("solstice")) return "❄️";
+    if(t.includes("equinox")) return "🌸";
+    return "☀";
+
+}
+
+function eventTitleKey(event){
+
+    return String(event.title || "").toLowerCase().replace(/\s+/g, " ").trim();
+
+}
+
+function toDateString(date){
+
+    const d = parseLocalDay(date);
+    if(!d || Number.isNaN(d.getTime())) return null;
+
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+
+}
+
+function seasonDedupeKey(event){
+
+    const title = String(event.title || event.type || "").toLowerCase();
+    const match = title.match(/\b(spring|summer|autumn|fall|winter)\s+(equinox|solstice)\b/);
+    if(!match) return null;
+
+    const day = parseLocalDay(event.date);
+    if(!day || Number.isNaN(day.getTime())) return null;
+
+    const season = match[1] === "fall" ? "autumn" : match[1];
+    return `${day.getFullYear()}|${season}|${match[2]}`;
+
+}
+
+function allTableEvents(table){
+
+    return Object.keys(table)
+        .map(Number)
+        .sort((a,b)=>a-b)
+        .flatMap(year => table[year] ?? []);
+
+}
+
 function getPaulmanac(currentDate, solarYear){
 
     const today = new Date(currentDate);
     today.setHours(0,0,0,0);
 
     const events = [];
+    const seenTitles = new Set();
+    const seenSeasons = new Set();
 
     //------------------------------------------------------
     // helper
@@ -407,21 +500,30 @@ function getPaulmanac(currentDate, solarYear){
         // "YYYY-MM-DD" must be read as a local day; new Date("2026-10-05")
         // is UTC midnight, i.e. the evening before in the Americas, which
         // made events vanish from the list on their own day.
-        const d = /^\d{4}-\d{2}-\d{2}$/.test(date)
-            ? new Date(...date.split("-").map((n, i) => i === 1 ? n - 1 : +n))
-            : new Date(date);
-        d.setHours(0,0,0,0);
+        // Named-moon dates arrive as Date objects (UTC instants); store a
+        // local calendar day so the list stays consistent.
+        const dateStr = toDateString(date);
+        const d = parseLocalDay(dateStr);
 
-        if(d < today) return;
+        if(!dateStr || !d || Number.isNaN(d.getTime()) || d < today) return;
 
-        events.push({
-
+        const event = {
             icon,
             title,
-            date,
+            date: dateStr,
             ...extra
+        };
 
-        });
+        const titleKey = `${event.date}|${eventTitleKey(event)}`;
+        if(seenTitles.has(titleKey)) return;
+
+        const seasonKey = seasonDedupeKey(event);
+        if(seasonKey && seenSeasons.has(seasonKey)) return;
+
+        seenTitles.add(titleKey);
+        if(seasonKey) seenSeasons.add(seasonKey);
+
+        events.push(event);
 
     }
 
@@ -432,10 +534,9 @@ function getPaulmanac(currentDate, solarYear){
     const moon =
     (yearData(solarYear).fullMoons ?? []).find(m => {
 
-        const d = new Date(m.date);
-        d.setHours(0,0,0,0);
+        const d = parseLocalDay(m.date);
 
-        return d >= today;
+        return d && d >= today;
 
     });
 
@@ -454,44 +555,40 @@ function getPaulmanac(currentDate, solarYear){
     }
 
     //------------------------------------------------------
-    // next solar event
+    // solstices and equinoxes (local Eastern dates)
+    // Look through the full table so a season ~3 months out is not cut off.
     //------------------------------------------------------
 
-    const solar = [
-        ...(SOLAR_EVENTS[solarYear] ?? []),
-        ...(SOLAR_EVENTS[solarYear + 1] ?? [])
-    ].find(s => {
-    
-        const d = new Date(s.date);
-        d.setHours(0,0,0,0);
-    
-        return d >= today;
-    
-    });
+    for(const solar of allTableEvents(SOLAR_EVENTS)){
 
-    if(solar){
+        const kind = /\bsolstice\b/i.test(solar.type) ? "solstice"
+            : /\bequinox\b/i.test(solar.type) ? "equinox"
+            : null;
 
         add(
 
-            "☀",
+            solarIconFor(solar.type),
 
             solar.type,
 
-            solar.date
+            solar.date,
+
+            kind ? { type: kind } : {}
 
         );
 
     }
 
     //------------------------------------------------------
-    // sky events
+    // sky events (eclipses, meteors, conjunctions, ...)
+    // Solstices/equinoxes already come from SOLAR_EVENTS, whose dates
+    // follow America/New_York; the sky table can be a UTC day later.
     //------------------------------------------------------
 
-    for (const event of [
-        ...(SKY_EVENTS[solarYear] ?? []),
-        ...(SKY_EVENTS[solarYear + 1] ?? [])
-    ]) {
-    
+    for(const event of allTableEvents(SKY_EVENTS)){
+
+        if(event.type === "solstice" || event.type === "equinox") continue;
+
         add(
             event.icon,
             event.title,
@@ -502,7 +599,7 @@ function getPaulmanac(currentDate, solarYear){
                 visibleFromHome: event.visibleFromHome
             }
         );
-    
+
     }
 
     //------------------------------------------------------
@@ -511,11 +608,27 @@ function getPaulmanac(currentDate, solarYear){
 
         (a,b)=>
 
-            new Date(a.date)-new Date(b.date)
+            parseLocalDay(a.date) - parseLocalDay(b.date)
 
     );
 
-    return events.slice(0,5);
+    const nextSolar = events.find(isSolarEvent);
+    const top = events.slice(0,5);
+
+    if(!nextSolar) return top;
+
+    if(top.some(event =>
+        event === nextSolar ||
+        (event.date === nextSolar.date && eventTitleKey(event) === eventTitleKey(nextSolar)) ||
+        (seasonDedupeKey(event) && seasonDedupeKey(event) === seasonDedupeKey(nextSolar))
+    )){
+        return top;
+    }
+
+    const kept = top.slice(0,4);
+    kept.push(nextSolar);
+    kept.sort((a,b)=> parseLocalDay(a.date) - parseLocalDay(b.date));
+    return kept;
 
 }
 
